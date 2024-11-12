@@ -7,7 +7,7 @@ const dbConfig = {
     password: 'kaelan1',
     host: 'localhost',
     port: '5434',
-    database: 'pls_work',
+    database: 'intro_proj_db',
 };
 
 // Path to the exported SQL schema file
