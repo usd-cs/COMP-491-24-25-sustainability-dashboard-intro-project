@@ -1,21 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import NewPage from '@/components/NewPage.vue';
+import Unauthorized from '@/pages/unauthorized/app.vue';
+import Authorized from '@/pages/authorized/app.vue';
 
 const routes = [
-    {
-        path: '/loggedin',
-        name: 'NewPage',
-        component: NewPage,  
-    },
-
+  {
+    path: '/',
+    name: 'Unauthorized',
+    component: Unauthorized,
+  },
+  {
+    path: '/authorized',
+    name: 'Authorized',
+    component: Authorized,
+  },
 ];
 
 const router = createRouter({
-    history: createWebHistory(), // default path
-    routes
+  history: createWebHistory(),
+  routes,
 });
-
-
-
 
 export default router;

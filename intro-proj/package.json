@@ -11,6 +11,8 @@
   "dependencies": {
     "@vee-validate/rules": "^4.14.6",
     "axios": "^1.7.7",
+    "bootstrap": "^5.3.3",
+    "bootstrap-vue": "^2.23.1",
     "vee-validate": "^2.2.15",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
