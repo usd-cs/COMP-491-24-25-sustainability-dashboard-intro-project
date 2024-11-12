@@ -1,6 +1,5 @@
 import express from "express";
-import user_routes from "../src/users/routes";
-import auth_routes from "./auth/auth_routes";
+import auth_routes from "./auth/routes";
 import comments_routes from '../src/comments/routes';
 import posts_routes from '../src/posts/routes';
 
