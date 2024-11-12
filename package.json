@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "@vue/test-utils": "^2.4.6",
+    "axios": "^1.7.7"
+  }
+}

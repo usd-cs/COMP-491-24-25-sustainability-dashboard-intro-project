@@ -1,5 +1,8 @@
 const { Client } = require('pg');
-
+const express = require('express');
+const bcrypt = require('bcrypt');
+const app = express();
+const port = 5434;
 // Database connection configuration
 const dbConfig = {
     user: 'kaelananderson',
