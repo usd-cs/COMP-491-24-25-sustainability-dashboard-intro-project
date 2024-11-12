@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import axios from 'axios'; // Import axios
+
 export default {
   name: 'LoginForm',
   data() {
@@ -26,37 +28,32 @@ export default {
         username: '',
         password: '',
       },
-      loginMessage: '',
-      isLoggedIn: false,
+      loginMessage: '', // Message to display feedback
+      isLoggedIn: false, // To track login status
     };
   },
   methods: {
-    login() {
-      const validCredentials = {
-        username: 'user123',
-        password: 'pword123',
-      };
+    async login() {
+      try {
+        // Make POST request to backend login endpoint
+        const response = await axios.post('http://localhost:3000/api/login', {
+          username: this.formData.username,
+          password: this.formData.password,
+        });
 
-      if (
-        this.formData.username === validCredentials.username &&
-        this.formData.password === validCredentials.password
-      ) {
-        this.loginMessage = 'Login successful!';
-        this.isLoggedIn = true;
-        const authToken = 'auth-token-123';
-        localStorage.setItem('authToken', authToken);
-        this.$emit('login');
-        this.$router.push('/authorized');
-      } else {
-        this.loginMessage = 'Invalid username or password.';
+        // Handle successful login
+        this.loginMessage = response.data.message;
+        localStorage.setItem('userId', response.data.userId); // Store user ID in local storage
+        this.$router.push('/authorized'); // Redirect to authorized page
+      } catch (error) {
+        // Handle error response
+        if (error.response) {
+          this.loginMessage = error.response.data.message;
+        } else {
+          this.loginMessage = 'Server error. Please try again later.';
+        }
       }
     },
-  },
-  mounted() {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      this.isLoggedIn = true;
-    }
   },
 };
 </script>
