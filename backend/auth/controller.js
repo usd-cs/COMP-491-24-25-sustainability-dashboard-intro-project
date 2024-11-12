@@ -1,33 +1,30 @@
-import { query } from './database_connection.js';
-import { get_users_query, get_users_by_id_query, add_users_query, remove_users_query } from './queries.js';
+import { queryUserByUsername } from './queries.js';
+import bcrypt from 'bcrypt';
 
-// Get all users
-export const get_users = async () => {
-    return await query(get_users_query);
+export const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Query user by username
+    const user = await queryUserByUsername(username);
+
+    if (user.length === 0) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    // Compare provided password with hashed password
+    const passwordMatch = await bcrypt.compare(password, user[0].password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    // Successful login
+    res.status(200).json({
+      message: 'Login successful',
+      user: { user_id: user[0].user_id, username: user[0].username },
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
-
-// Get user by id
-export const get_users_by_id = async (user_id) => {
-    return await query(get_users_by_id_query, [user_id]);
-};
-
-// Add user
-export const add_users = async (username, password) => {
-    return await query(add_users_query, [username, password]);
-};
-
-// Remove user
-export const remove_users = async (user_id) => {
-    return await query(remove_users_query, [user_id]);
-};
-
-// Get user by username
-export const get_users_by_username = async (username) => {
-    return await query(get_users_by_username_query, [username]);
-};
-
-// Get user by username and password
-export const get_users_by_username_and_password = async (username, password) => {
-    return await query(get_users_by_username_and_password_query, [username, password]);
-};
-

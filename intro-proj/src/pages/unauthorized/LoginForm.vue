@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import axios from 'axios'; // Import axios
+
 export default {
   name: 'LoginForm',
   data() {
@@ -26,37 +28,48 @@ export default {
         username: '',
         password: '',
       },
-      loginMessage: '',
-      isLoggedIn: false,
+      loginMessage: '', // Message to display feedback
+      isLoggedIn: false, // To track login status
     };
   },
   methods: {
-    login() {
-      const validCredentials = {
-        username: 'user123',
-        password: 'pword123',
-      };
+    async login() {
+      try {
+        // Ensure the formData is not empty
+        if (!this.formData.username || !this.formData.password) {
+          this.loginMessage = 'Please enter your username and password.';
+          return;
+        }
 
-      if (
-        this.formData.username === validCredentials.username &&
-        this.formData.password === validCredentials.password
-      ) {
-        this.loginMessage = 'Login successful!';
-        this.isLoggedIn = true;
-        const authToken = 'auth-token-123';
-        localStorage.setItem('authToken', authToken);
-        this.$emit('login');
-        this.$router.push('/authorized');
-      } else {
-        this.loginMessage = 'Invalid username or password.';
+        console.log('Attempting to log in with:', this.formData); // Debugging
+
+        // Make POST request to backend login endpoint
+        const response = await axios.post('http://localhost:3000/api/auth/login', {
+          username: this.formData.username,
+          password: this.formData.password,
+        });
+
+        console.log('Response:', response.data); // Debugging
+
+        // Handle successful login
+        if (response.status === 200) {
+          this.loginMessage = response.data.message;
+          localStorage.setItem('userId', response.data.user.user_id); // Store user ID in local storage
+          this.isLoggedIn = true; // Set login status
+          this.$router.push('/authorized'); // Redirect to authorized page
+        } else {
+          this.loginMessage = 'Unexpected response from server.';
+        }
+      } catch (error) {
+        console.error('Login error:', error); // Debugging
+        // Handle error response
+        if (error.response) {
+          this.loginMessage = error.response.data.message || 'Invalid login credentials.';
+        } else {
+          this.loginMessage = 'Server error. Please try again later.';
+        }
       }
     },
-  },
-  mounted() {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      this.isLoggedIn = true;
-    }
   },
 };
 </script>
