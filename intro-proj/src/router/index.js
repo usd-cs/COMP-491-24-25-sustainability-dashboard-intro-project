@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Unauthorized from '@/pages/unauthorized/app.vue';
-import Authorized from '@/pages/authorized/app.vue';
+import Unauthorized from '@/pages/unauthorized/App.vue';
+import Authorized from '@/pages/authorized/App.vue';
 
 const routes = [
   {
