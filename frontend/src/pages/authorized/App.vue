@@ -8,28 +8,26 @@
     <div class="main-content">
       <div class="left-column">
         <!-- Blog posts component for authorized users -->
-        <BlogPostsAuth />
+        <BlogPostsAuth ref="blogPostsAuth" />
       </div>
 
       <div class="right-column">
-        <!-- Create Post component for authorized users to add new posts -->
-        <CreatePost @post-submitted="addPost" />
+        <!-- Submit Post component for authorized users to add new posts -->
+        <SubmitPost />
       </div>
     </div>
   </div>
 </template>
 
-
 <script>
 import BlogPostsAuth from './BlogPostsAuth.vue';
-//import CreatePost from './CreatePost.vue';
-
+import SubmitPost from './SubmitPost.vue'; // Updated import for SubmitPost
 
 export default {
   name: 'AuthorizedPage',
   components: {
     BlogPostsAuth,
-    CreatePost
+    SubmitPost, // Register SubmitPost
   },
   methods: {
     logout() {
@@ -37,13 +35,10 @@ export default {
       localStorage.removeItem('authToken');
       this.$router.push({ name: 'Unauthorized' });
     },
-    addPost(newPostContent) {
-      // Pass the new post content to BlogPostsAuth
-      this.$refs.blogPostsAuth.addPost(newPostContent);
-    }
-  }
+  },
 };
 </script>
+
 <style scoped>
 /* Container for the whole authorized page */
 .authorized-page {
