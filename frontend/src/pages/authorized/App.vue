@@ -22,7 +22,8 @@
 
 <script>
 import BlogPostsAuth from './BlogPostsAuth.vue';
-import CreatePost from './CreatePost.vue';
+//import CreatePost from './CreatePost.vue';
+
 
 export default {
   name: 'AuthorizedPage',

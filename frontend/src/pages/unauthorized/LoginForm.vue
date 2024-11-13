@@ -1,6 +1,6 @@
 <script>
 import axios from 'axios'; 
-import { login } from './login'; 
+import { login } from '@/login.js';
 
 export default {
   name: 'LoginForm',
