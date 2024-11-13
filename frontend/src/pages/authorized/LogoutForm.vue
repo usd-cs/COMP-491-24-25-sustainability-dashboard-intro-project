@@ -5,6 +5,14 @@
 </template>
 
 <script>
+// Export the logout function to allow testing
+export function logout() {
+    localStorage.removeItem('authToken'); // Adjust according to auth setup
+    // Redirect to home
+    this.$router.push('/');
+    this.$emit('logout');
+}
+
 export default {
     name: 'LogoutButton',
     props: {
@@ -14,12 +22,7 @@ export default {
         }
     },
     methods: {
-        logout() {
-            localStorage.removeItem('authToken'); // Adjust according to auth setup
-            // Redirect to home
-            this.$router.push('/');
-            this.$emit('logout');
-        }
+        logout
     }
 };
 </script>
