@@ -1,5 +1,5 @@
 {
-  "name": "COMP-491-24-25-sustainability-dashboard-intro-project",
+  "name": "comp491-sustainability-dashboard",
   "version": "1.0.0",
   "type": "module",
   "main": "backend/server-model.js",
