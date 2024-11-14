@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-// import auth_routes from "./auth/routes";
-import comments_routes from './comments/routes';
-import posts_routes from './posts/routes';
+import auth_routes from "./auth/routes.js";
+import comments_routes from './comments/routes.js';
+import posts_routes from './posts/routes.js';
 
 
 const app = express();
@@ -14,8 +14,6 @@ app.use(express.json());
 app.use('/comments', comments_routes);
 
 app.use('/posts', posts_routes);
-
-app.use('/api/users', user_routes);
 
 app.use('/auth', auth_routes);
 
