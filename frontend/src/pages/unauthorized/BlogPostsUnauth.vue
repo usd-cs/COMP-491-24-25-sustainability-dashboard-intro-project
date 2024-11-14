@@ -1,74 +1,98 @@
 <template>
   <div>
     <h1>Recent Posts</h1>
-    <ul>
+
+    <!-- Loading state -->
+    <div v-if="loading">
+      <p>Loading posts...</p>
+    </div>
+
+    <!-- Error message -->
+    <div v-if="errorMessage">
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <!-- Check if there are posts, and display a message if not -->
+    <div v-if="!loading && posts.length === 0">
+      <p>No posts available.</p>
+    </div>
+
+    <!-- Display posts -->
+    <ul v-if="!loading">
       <li v-for="post in posts" :key="post.post_id">
-        <p>{{ post.content }}</p>
-        <!-- Show comments if any exist (assuming comments are part of the post) -->
-        <ul>
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.contents }}</p>
+
+        <!-- Show comments if they exist -->
+        <ul v-if="post.comments && post.comments.length">
           <li v-for="comment in post.comments" :key="comment.comment_id">
-            <p>{{ comment.content }}</p>
+            <p>{{ comment.contents }}</p>
           </li>
         </ul>
+        <div v-else>
+          <p>No comments available for this post.</p>
+        </div>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import { loadPosts } from '@/postsServices';
 
 export default {
   data() {
     return {
       posts: [],
-      isLoggedIn: false,  // Track if the user is logged in
-      isAdmin: false,  // Track if the user is an admin
+      loading: true,
+      errorMessage: '',
     };
   },
   methods: {
-    // Fetch all posts directly from the backend using axios
-    async loadPosts() {
-      try {
-        const response = await axios.get('http://localhost:3000/get_posts'); // Replace with your backend URL
-        this.posts = response.data;
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        this.posts = []; 
-      }
-    },
-
-    // Check if user is logged in by looking for userId in localStorage
-    loadUserStatus() {
-      const userId = localStorage.getItem('userId');
-      
-      // If userId exists in localStorage, assume the user is logged in
-      if (userId) {
-        this.isLoggedIn = true;
-        // Optionally fetch additional user info (like admin status) if needed
-        this.checkIfAdmin(userId);
+    async fetchPosts() {
+      this.loading = true; // Set loading to true before fetching
+      const { data, error } = await loadPosts();
+      if (error) {
+        this.errorMessage = error;
       } else {
-        this.isLoggedIn = false;
-        this.isAdmin = false;
+        this.posts = data;
       }
-    },
-
-    // Simulated function to check if the user is an admin
-    async checkIfAdmin(userId) {
-      try {
-        // Make a request to fetch user details based on userId (optional)
-        const response = await axios.get(`http://localhost:3000/api/users/${userId}/status`);
-        this.isAdmin = response.data.isAdmin;
-      } catch (error) {
-        console.error('Error checking user admin status:', error);
-        this.isAdmin = false;
-      }
+      this.loading = false; // Set loading to false once request is done
     },
   },
   created() {
-    // Load posts and user status when the component is created
-    this.loadPosts();
-    this.loadUserStatus();
+    this.fetchPosts(); // Call the fetchPosts method when the component is created
   },
 };
 </script>
+
+<style scoped>
+/* Add some basic styling for loading and error messages */
+p {
+  font-size: 1rem;
+  color: #333;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul li {
+  margin-bottom: 1rem;
+}
+
+.loading, .error-message {
+  color: #f00;
+}
+</style>

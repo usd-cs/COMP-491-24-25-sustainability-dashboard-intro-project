@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import axios from 'axios'; 
 import { login } from '@/login.js';
 
 export default {

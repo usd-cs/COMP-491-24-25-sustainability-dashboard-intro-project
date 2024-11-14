@@ -1,11 +1,12 @@
+// routes.js
 import { Router } from 'express';
-import * as controller from './controller';
+import { get_posts, add_posts, remove_posts } from './controller.js'; // Import controller functions
 
 const router = Router();
 
-router.get('/', controller.get_posts);
-router.post("/", controller.add_posts);
-router.get("/:id", controller.get_posts_by_id);
-router.delete("/:id", controller.remove_posts);
+// Define routes for posts
+router.get('/get_posts', get_posts);         // Get all posts
+router.post('/posts', add_posts);        // Add a new post
+router.delete('/posts/:id', remove_posts);  // Remove a post by ID
 
 export default router;

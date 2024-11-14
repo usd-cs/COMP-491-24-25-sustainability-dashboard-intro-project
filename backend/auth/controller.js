@@ -1,5 +1,5 @@
 import { queryUserByUsername } from './queries.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
@@ -8,12 +8,21 @@ export const loginUser = async (req, res) => {
     // Query user by username
     const user = await queryUserByUsername(username);
 
+    // Log the result to check if user was found and the password field
+    console.log('User from DB:', user);
+
     if (user.length === 0) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    // Compare provided password with hashed password
+
+
+    // Log the hashed password stored in the DB
+    console.log('Hashed password stored in DB:', user[0].password);
+
+    // Compare provided password with hashed password stored in the database
     const passwordMatch = await bcrypt.compare(password, user[0].password);
+
     if (!passwordMatch) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }

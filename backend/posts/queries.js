@@ -1,15 +1,20 @@
-// Post Table Columns 
-// post_id integer NOT NULL,
-// contents text NOT NULL,
-// user_id integer
+import { query } from '../database_connection.js'; // Adjust the path to match your project structure
 
-export const get_posts_query = "SELECT post_id, content, WHERE deleted_at IS NULL";
+// Query to get all posts
+export const getAllPosts = async () => {
+  const sql = 'SELECT * FROM forum_schema."Post"';
+  return await query(sql);
+};
 
-export const get_posts_by_id_query = "SELECT post_id, content, WHERE post_id = $1 AND deleted_at IS NULL";
+// Query to add a new post
+export const addPost = async (title, contents) => {
+  const sql = 'INSERT INTO forum_schema."Post" (title, contents) VALUES ($1, $2) RETURNING *';
+  return await query(sql, [title, contents]);
+};
 
-export const add_posts_query = "INSERT INTO posts (content) VALUES ($1) RETURNING *";
-
-export const remove_posts_query = "UPDATE posts SET deleted_at = NOW() WHERE post_id = $1 RETURNING *";
-
-
+// Query to remove a post by ID
+export const removePost = async (postId) => {
+  const sql = 'DELETE FROM forum_schema."Post" WHERE post_id = $1 RETURNING *';
+  return await query(sql, [postId]);
+};
 
