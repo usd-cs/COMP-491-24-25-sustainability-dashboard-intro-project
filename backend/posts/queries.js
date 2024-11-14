@@ -14,9 +14,9 @@ export const getAllPosts = async () => {
   return await query(sql);
 };
 // Query to add a new post
-export const addPost = async (title, contents) => {
-  const sql = 'INSERT INTO forum_schema."Post" (title, contents) VALUES ($1, $2) RETURNING *';
-  return await query(sql, [title, contents]);
+export const addPost = async (contents) => {
+  const sql = 'INSERT INTO forum_schema."Post" (content) VALUES ($1) RETURNING *;';
+  return await query(sql, [contents]);
 };
 
 // Query to remove a post by ID

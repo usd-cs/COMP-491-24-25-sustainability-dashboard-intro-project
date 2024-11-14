@@ -6,7 +6,7 @@ const router = Router();
 
 // Define routes for posts
 router.get('/get_posts', get_posts);         // Get all posts
-router.post('/posts', add_posts);        // Add a new post
+router.post('/add_posts', add_posts);        // Add a new post
 router.delete('/posts/:id', remove_posts);  // Remove a post by ID
 
 export default router;

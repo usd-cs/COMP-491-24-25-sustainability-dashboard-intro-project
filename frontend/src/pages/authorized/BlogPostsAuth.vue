@@ -1,19 +1,43 @@
 <template>
-  <div>
-    <h2>Recent Posts</h2>
-    <ul>
-      <li v-for="post in posts" :key="post.post_id">
-        <p>{{ post.content }}</p>
+  <div class="container">
+    <h1 class="title">Recent Posts</h1>
 
-        <!-- Only show delete button if the user is an admin -->
-        <button v-if="isAdmin" @click="removePost(post.post_id)">Delete Post</button>
-        
-        <!-- Show comment section -->
-        <div v-for="comment in post.comments" :key="comment.comment_id">
-          <p>{{ comment.content }}</p>
+    <!-- Loading state -->
+    <div v-if="loading" class="loading">
+      <p>Loading posts...</p>
+    </div>
 
-          <!-- Only show delete button for comments if the user is an admin -->
-          <button v-if="isAdmin" @click="removeComment(comment.comment_id)">Delete Comment</button>
+    <!-- Error message -->
+    <div v-if="errorMessage" class="error-message">
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <!-- Check if there are posts, and display a message if not -->
+    <div v-if="!loading && posts.length === 0" class="no-posts">
+      <p>No posts available.</p>
+    </div>
+
+    <!-- Display posts -->
+    <ul v-if="!loading" class="post-list">
+      <li v-for="post in posts" :key="post.post_id" class="post">
+        <div class="post-header">
+          <h2>{{ post.post_contents }}</h2>
+          <p class="post-meta">Posted by User {{ post.user_id }}</p>
+        </div>
+
+        <!-- Show comments if they exist -->
+        <div v-if="post.comments && post.comments.length" class="comments-section">
+          <h3>Comments:</h3>
+          <ul class="comments-list">
+            <li v-for="comment in post.comments" :key="comment.comment_id" class="comment">
+              <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
+              <p>{{ comment.comment_contents }}</p>
+            </li>
+          </ul>
+        </div>
+
+        <div v-else class="no-comments">
+          <p>No comments available for this post.</p>
         </div>
       </li>
     </ul>
@@ -21,93 +45,148 @@
 </template>
 
 <script>
+import { loadPostsAndComments } from '@/postsServices';
+
 export default {
   data() {
     return {
-      posts: [],  // Initialize with an empty array to hold posts
-      isAdmin: false, // Flag to check if the user is an admin
+      posts: [],
+      loading: true,
+      errorMessage: '',
     };
   },
-  created() {
-    this.fetchPosts();  // Fetch posts when the component is created
-    this.checkAdminStatus(); // Check if the user is an admin when the component is created
-  },
   methods: {
-    // Fetch posts from the backend
-    async fetchPosts() {
-      try {
-        const response = await fetch('http://localhost:3000/api/posts'); // Adjust URL based on your setup
-        if (response.ok) {
-          const posts = await response.json();
-          this.posts = posts; // Update posts data
-        } else {
-          console.error('Failed to fetch posts');
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      }
-    },
+    async fetchPostsAndComments() {
+      this.loading = true; // Set loading to true before fetching
+      const { data, error } = await loadPostsAndComments();
 
-    // Handle removing a post
-    async removePost(postId) {
-      if (this.isAdmin) {
-        try {
-          // Modify the URL to match your Express route for removing posts
-          const response = await fetch(`http://localhost:3000/api/posts/${postId}`, {
-            method: 'DELETE',
-          });
-
-          if (response.ok) {
-            // Remove the post from the list if successfully deleted
-            this.posts = this.posts.filter(post => post.post_id !== postId);
-          } else {
-            console.error('Failed to delete post');
-          }
-        } catch (error) {
-          console.error('Error deleting post:', error);
-        }
+      if (error) {
+        this.errorMessage = error;
       } else {
-        alert('You do not have permission to delete posts.');
+        // Parse and group comments by post_id
+        const groupedPosts = this.groupPostsWithComments(data);
+        this.posts = groupedPosts;
       }
+      this.loading = false; // Set loading to false once request is done
     },
 
-    // Handle removing a comment
-    async removeComment(commentId) {
-      if (this.isAdmin) {
-        try {
-          // Modify the URL to match your Express route for removing comments
-          const response = await fetch(`http://localhost:3000/api/comments/${commentId}`, {
-            method: 'DELETE',
-          });
+    // Method to group comments under their respective posts
+    groupPostsWithComments(data) {
+      const postsMap = {};
 
-          if (response.ok) {
-            // Remove the comment from the post's comments list
-            this.posts.forEach(post => {
-              post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
-            });
-          } else {
-            console.error('Failed to delete comment');
-          }
-        } catch (error) {
-          console.error('Error deleting comment:', error);
+      // Iterate through the data and organize it by post_id
+      data.forEach(item => {
+        const { post_id, post_contents, user_id, comment_id, comment_contents } = item;
+
+        // If the post doesn't exist in the postsMap, create it
+        if (!postsMap[post_id]) {
+          postsMap[post_id] = {
+            post_id,
+            post_contents,
+            user_id,
+            comments: []
+          };
         }
-      } else {
-        alert('You do not have permission to delete comments.');
-      }
-    },
 
-    // Check if the user is an admin (for demonstration, this can be done based on your auth system)
-    checkAdminStatus() {
-      // Example: check the user role from local storage or an API call
-      const userRole = localStorage.getItem('userRole'); 
-      if (userRole === 'admin') {
-        this.isAdmin = true;
-      }
-    }
-  }
+        // Add the comment to the respective post
+        postsMap[post_id].comments.push({
+          comment_id,
+          comment_contents,
+          user_id
+        });
+      });
+
+      // Convert postsMap object back to an array
+      return Object.values(postsMap);
+    },
+  },
+  created() {
+    this.fetchPostsAndComments(); // Fetch posts and comments when the component is created
+  },
 };
 </script>
 
 <style scoped>
+/* Basic container styling */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+}
 
+/* Title styling */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Loading and error message styles */
+.loading, .error-message {
+  color: #f00;
+  text-align: center;
+}
+
+/* Styling for no posts available message */
+.no-posts {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Post list styling */
+.post-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+/* Individual post styling */
+.post {
+  background-color: #007bff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  color: white;
+}
+
+.post-header {
+  margin-bottom: 10px;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: #ddd;
+}
+
+/* Comments section styling */
+.comments-section {
+  margin-top: 15px;
+}
+
+.comments-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.comment {
+  background-color: #e0f7fa;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  color: #00796b;
+}
+
+.comment p {
+  margin: 0;
+}
+
+/* No comments available message styling */
+.no-comments {
+  font-style: italic;
+  color: #aaa;
+}
 </style>

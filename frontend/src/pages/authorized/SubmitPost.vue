@@ -31,7 +31,7 @@ export default {
     async submitPost() {
       if (this.newPostContent.trim()) {
         try {
-          const response = await axios.post('http://localhost:3000/api/posts', {
+          const response = await axios.post('http://localhost:3001/api/posts/add_posts', {
             content: this.newPostContent
           });
           if (response.status === 200) {

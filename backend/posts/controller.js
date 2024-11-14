@@ -44,9 +44,9 @@ export const get_posts = async (req, res) => {
 
 // Add a new post
 export const add_posts = async (req, res) => {
-  const { title, contents } = req.body;
+  const { contents } = req.body;
   try {
-    const newPost = await addPost(title, contents);  // Add new post to the database
+    const newPost = await addPost(contents);  // Add new post to the database
     res.status(201).json(newPost);  // Respond with the newly added post
   } catch (error) {
     console.error('Error adding post:', error);
