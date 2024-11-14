@@ -1,4 +1,4 @@
-import { query } from './database_connection.js';
+import { query } from '../database_connection.js';
 import { get_comments_query, get_comments_by_id_query, add_comments_query, remove_comments_query, get_comments_by_post_id_query } from './queries.js';
 
 // Get all comments
