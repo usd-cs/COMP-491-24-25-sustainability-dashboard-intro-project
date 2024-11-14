@@ -1,9 +1,8 @@
 import express from "express";
 import cors from "cors";
 import auth_routes from "./auth/routes";
-import comments_routes from '../src/comments/routes';
-import posts_routes from '../src/posts/routes';
-
+import comments_routes from './comments/routes';
+import posts_routes from './posts/routes';
 
 
 const app = express();
