@@ -1,9 +1,9 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 
 // Fetch all posts
 export const fetchPosts = async () => {
   try {
-    const response = await axios.get('/api/posts'); // API endpoint to get posts
+    const response = await apiClient.get('/api/posts'); // API endpoint to get posts
     return response.data;
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -14,7 +14,7 @@ export const fetchPosts = async () => {
 // Fetch user status (whether logged in or an admin)
 export const fetchUserStatus = async () => {
   try {
-    const response = await axios.get('/api/user/status'); // API endpoint to check user status
+    const response = await apiClient.get('/api/user/status'); // API endpoint to check user status
     return response.data; // Expected to return { isLoggedIn: boolean, isAdmin: boolean }
   } catch (error) {
     console.error('Error fetching user status:', error);
