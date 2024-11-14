@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 // Mount auth routes
 app.use('/api/auth', authRoutes);
 
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

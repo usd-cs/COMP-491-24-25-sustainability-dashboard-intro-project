@@ -1,23 +1,24 @@
+// postsService.js
 import axios from 'axios';
 
-// Fetch all posts
-export const fetchPosts = async () => {
+export async function loadPosts() {
   try {
-    const response = await axios.get('/api/posts'); // API endpoint to get posts
-    return response.data;
+    const response = await axios.get('http://localhost:3001/api/posts/get_posts');
+    console.log('Posts fetched:', response.data);
+    return { data: response.data, error: null };
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    return [];
+    console.error('Error fetching posts:', error.response ? error.response.data : error);
+    return { data: null, error: 'Error fetching posts. Please try again later.' };
   }
-};
+}
 
-// Fetch user status (whether logged in or an admin)
-export const fetchUserStatus = async () => {
+export async function loadComments() {
   try {
-    const response = await axios.get('/api/user/status'); // API endpoint to check user status
-    return response.data; // Expected to return { isLoggedIn: boolean, isAdmin: boolean }
+    const response = await axios.get('http://localhost:3001/api/posts/get_comments');
+    console.log('Posts fetched:', response.data);
+    return { data: response.data, error: null };
   } catch (error) {
-    console.error('Error fetching user status:', error);
-    return { isLoggedIn: false, isAdmin: false };
+    console.error('Error fetching posts:', error.response ? error.response.data : error);
+    return { data: null, error: 'Error fetching posts. Please try again later.' };
   }
-};
+}
