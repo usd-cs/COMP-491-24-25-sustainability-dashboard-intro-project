@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import auth_routes from "./auth/routes";
+// import auth_routes from "./auth/routes";
 import comments_routes from './comments/routes';
 import posts_routes from './posts/routes';
 
