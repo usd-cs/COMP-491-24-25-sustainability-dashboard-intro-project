@@ -20,15 +20,19 @@
     <!-- Display posts -->
     <ul v-if="!loading">
       <li v-for="post in posts" :key="post.post_id">
-        <h2>{{ post.title }}</h2>
-        <p>{{ post.contents }}</p>
+        <h2>{{ post.post_contents }}</h2>
+        <p>Posted by User {{ post.user_id }}</p>
 
         <!-- Show comments if they exist -->
-        <ul v-if="post.comments && post.comments.length">
-          <li v-for="comment in post.comments" :key="comment.comment_id">
-            <p>{{ comment.contents }}</p>
-          </li>
-        </ul>
+        <div v-if="post.comments && post.comments.length">
+          <h3>Comments:</h3>
+          <ul>
+            <li v-for="comment in post.comments" :key="comment.comment_id">
+              <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
+              <p>{{ comment.comment_contents }}</p>
+            </li>
+          </ul>
+        </div>
         <div v-else>
           <p>No comments available for this post.</p>
         </div>
@@ -38,7 +42,7 @@
 </template>
 
 <script>
-import { loadPosts } from '@/postsServices';
+import { loadPostsAndComments } from '@/postsServices';
 
 export default {
   data() {
@@ -49,19 +53,52 @@ export default {
     };
   },
   methods: {
-    async fetchPosts() {
+    async fetchPostsAndComments() {
       this.loading = true; // Set loading to true before fetching
-      const { data, error } = await loadPosts();
+      const { data, error } = await loadPostsAndComments();
+
       if (error) {
         this.errorMessage = error;
       } else {
-        this.posts = data;
+        // Parse and group comments by post_id
+        const groupedPosts = this.groupPostsWithComments(data);
+        this.posts = groupedPosts;
       }
       this.loading = false; // Set loading to false once request is done
     },
+
+    // Method to group comments under their respective posts
+    groupPostsWithComments(data) {
+      const postsMap = {};
+
+      // Iterate through the data and organize it by post_id
+      data.forEach(item => {
+        const { post_id, post_contents, user_id, comment_id, comment_contents } = item;
+
+        // If the post doesn't exist in the postsMap, create it
+        if (!postsMap[post_id]) {
+          postsMap[post_id] = {
+            post_id,
+            post_contents,
+            user_id,
+            comments: []
+          };
+        }
+
+        // Add the comment to the respective post
+        postsMap[post_id].comments.push({
+          comment_id,
+          comment_contents,
+          user_id
+        });
+      });
+
+      // Convert postsMap object back to an array
+      return Object.values(postsMap);
+    },
   },
   created() {
-    this.fetchPosts(); // Call the fetchPosts method when the component is created
+    this.fetchPostsAndComments(); // Fetch posts and comments when the component is created
   },
 };
 </script>

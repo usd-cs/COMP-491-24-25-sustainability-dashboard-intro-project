@@ -1,20 +1,26 @@
-// comments table columns
-// comment_id integer NOT NULL,
-// contents text NOT NULL,
-// user_id integer,
-// post_id integer
-
-//export const get_comments_by_id_query = "SELECT comment_id, content, WHERE comment_id = $1 AND deleted_at IS NULL";
-
-export const add_comments_query = "INSERT INTO comments (content) VALUES ($1) RETURNING *";
-
-export const remove_comments_query = "UPDATE comments SET deleted_at = NOW() WHERE comment_id = $1 RETURNING *";
-
-export const get_comments_by_post_id_query = `
-    SELECT comment_id, contents, user_id
-    FROM forum_schema."Comment"
-    WHERE post_id = $1 AND deleted_at IS NULL;
-`;
+import { query } from '../database_connection.js'; // Adjust the path to match your project structure
 
 
-// should get comments based on what posts_ids are in the table
+
+// Query to add a new comment
+export const addComment = async (contents, user_id, post_id) => {
+  const sql = `
+    INSERT INTO forum_schema."Comment" (contents, user_id, post_id)
+    VALUES ($1, $2, $3)
+    RETURNING *;
+  `;
+  const result = await query(sql, [contents, user_id, post_id]);
+  return result.rows[0];  // Return the inserted comment object
+};
+
+// Query to remove a comment by ID (mark it as deleted)
+export const removeComment = async (commentId) => {
+  const sql = `
+    UPDATE forum_schema."Comment"
+    SET deleted_at = NOW()
+    WHERE comment_id = $1
+    RETURNING *;
+  `;
+  const result = await query(sql, [commentId]);
+  return result.rows[0];  // Return the deleted comment object (with updated deleted_at timestamp)
+};
