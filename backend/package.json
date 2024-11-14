@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "module",
-  "main": "login_route.js",
+  "main": "server-model.js",
   "scripts": {
-    "start": "node login_route.js"
+    "start": "node backend/server-model.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
