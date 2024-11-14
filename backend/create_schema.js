@@ -4,11 +4,11 @@ import fs from 'fs';
 
 // Configuration for the database connection
 const dbConfig = {
-    user: 'postgres',
-    password: 'postgres',
-    host: 'localhost',
-    port: '5434',
-    database: 'postgres',
+  user: 'kaelananderson',
+  password: 'kaelan1',
+  host: 'localhost',
+  port: '5434',
+  database: 'intro_proj_db',
 };
 
 // Path to the exported SQL schema file

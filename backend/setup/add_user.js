@@ -4,11 +4,11 @@ import bcrypt from 'bcryptjs';  // Import bcrypt for password hashing
 
 // Configuration for the database connection
 const dbConfig = {
-    user: 'postgres',
-    password: 'postgres',
-    host: 'localhost',
-    port: '5434',
-    database: 'postgres',
+  user: 'kaelananderson',
+  password: 'kaelan1',
+  host: 'localhost',
+  port: '5434',
+  database: 'intro_proj_db',
 };
 
 // Create a PostgreSQL client and connect
