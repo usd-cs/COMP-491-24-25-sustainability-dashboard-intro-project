@@ -8,7 +8,7 @@
     <div class="main-content">
       <div class="left-column">
         <!-- Blog posts component for authorized users -->
-        <BlogPostsAuth ref="blogPostsAuth" />
+        <BlogPostsAuth ref="blogPostsAuth" :posts="posts" />
       </div>
 
       <div class="right-column">
@@ -22,12 +22,31 @@
 <script>
 import BlogPostsAuth from './BlogPostsAuth.vue';
 import SubmitPost from './SubmitPost.vue'; // Updated import for SubmitPost
-
+import { loadPostsAndComments } from '@/postsServices';
 export default {
   name: 'AuthorizedPage',
   components: {
     BlogPostsAuth,
-    SubmitPost, // Register SubmitPost
+    SubmitPost, // Register SubmitPost component
+  },
+  data() {
+    return {
+      posts: [],   // Array to store the posts fetched from the API
+      error: null, // To store any errors if fetching posts fails
+    };
+  },
+  async created() {
+    try {
+      const { data, error } = await loadPostsAndComments(); // Fetch posts and comments
+      if (data) {
+        this.posts = data; // Assign the fetched data to posts
+      } else {
+        this.error = error; // Assign error if any occurs
+      }
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      this.error = 'Failed to fetch posts'; // Handle unexpected errors
+    }
   },
   methods: {
     logout() {
