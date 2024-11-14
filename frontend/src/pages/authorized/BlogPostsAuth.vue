@@ -18,10 +18,10 @@
     </div>
 
     <!-- Display posts -->
-    <ul v-if="!loading" class="post-list">
+    <ul v-if="!loading && posts.length > 0" class="post-list">
       <li v-for="post in posts" :key="post.post_id" class="post">
         <div class="post-header">
-          <h2>{{ post.post_contents }}</h2>
+          <h2>{{ post.contents }}</h2>
           <p class="post-meta">Posted by User {{ post.user_id }}</p>
         </div>
 
@@ -31,7 +31,7 @@
           <ul class="comments-list">
             <li v-for="comment in post.comments" :key="comment.comment_id" class="comment">
               <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
-              <p>{{ comment.comment_contents }}</p>
+              <p>{{ comment.contents }}</p>
             </li>
           </ul>
         </div>
@@ -57,47 +57,18 @@ export default {
   },
   methods: {
     async fetchPostsAndComments() {
-      this.loading = true; // Set loading to true before fetching
+      this.loading = true;
       const { data, error } = await loadPostsAndComments();
 
       if (error) {
         this.errorMessage = error;
-      } else {
-        // Parse and group comments by post_id
-        const groupedPosts = this.groupPostsWithComments(data);
-        this.posts = groupedPosts;
+        this.loading = false;
+        return;
       }
-      this.loading = false; // Set loading to false once request is done
-    },
 
-    // Method to group comments under their respective posts
-    groupPostsWithComments(data) {
-      const postsMap = {};
-
-      // Iterate through the data and organize it by post_id
-      data.forEach(item => {
-        const { post_id, post_contents, user_id, comment_id, comment_contents } = item;
-
-        // If the post doesn't exist in the postsMap, create it
-        if (!postsMap[post_id]) {
-          postsMap[post_id] = {
-            post_id,
-            post_contents,
-            user_id,
-            comments: []
-          };
-        }
-
-        // Add the comment to the respective post
-        postsMap[post_id].comments.push({
-          comment_id,
-          comment_contents,
-          user_id
-        });
-      });
-
-      // Convert postsMap object back to an array
-      return Object.values(postsMap);
+      // The posts data is already structured as desired
+      this.posts = data;
+      this.loading = false;
     },
   },
   created() {
