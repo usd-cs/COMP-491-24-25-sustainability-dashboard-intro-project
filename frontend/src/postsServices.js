@@ -32,31 +32,40 @@ export async function addPost(postContent) {
   }
 }
 
+
 export async function deletePost(postId) {
   try {
-    // Ensure the postId is valid before making the request
-    if (!postId) {
-      throw new Error("Invalid post ID");
-    }
-
     const response = await axios.delete(`http://localhost:3001/api/posts/${postId}`);
-
-    // Return success data or custom response
     return { data: response.data, error: null };
   } catch (error) {
-    // Improved error handling
-    if (error.response) {
-      // Handle server-side errors
-      console.error('Error deleting post:', error.response.data || error.response.statusText);
-      return { data: null, error: error.response.data?.message || 'Server error occurred' };
-    } else if (error.request) {
-      // Handle request errors (e.g., no response received)
-      console.error('No response from server:', error.request);
-      return { data: null, error: 'No response from server' };
-    } else {
-      // Handle other types of errors (e.g., invalid URL)
-      console.error('Error setting up request:', error.message);
-      return { data: null, error: error.message || 'An unexpected error occurred' };
-    }
+    console.error('Error deleting post:', error.response?.data || error.message);
+    return { data: null, error: error.response?.data?.message || 'An error occurred' };
   }
 }
+
+export async function addComment(commentContent) {
+  try {
+    const response = await axios.post('http://localhost:3002/api/comments/add_comment', {
+      content: commentContent,  // Sending the comment content
+    });
+
+    console.log('Comment added:', response.data);  // Log the response data from the server
+    return { data: response.data, error: null };  // Return the new comment data from the server
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data : error.message;
+    console.error('Error adding comment:', errorMessage);  // Log the error message
+    throw new Error('Failed to add comment');  // Throw error for frontend to handle
+  }
+}
+
+export async function deleteComment(commentId) {
+  try {
+    const response = await axios.delete(`http://localhost:3002/api/comments/${commentId}`);
+    return { data: response.data, error: null };
+  } catch (error) {
+    console.error('Error deleting comment:', error.response?.data || error.message);
+    return { data: null, error: error.response?.data?.message || 'An error occurred while deleting the comment' };
+  }
+}
+
+

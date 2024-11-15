@@ -33,12 +33,23 @@
             <li v-for="comment in post.comments" :key="comment.comment_id" class="comment">
               <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
               <p>{{ comment.contents }}</p>
+              <button @click="deleteComment(post.post_id, comment.comment_id)" class="delete-button">Delete Comment</button>
             </li>
           </ul>
         </div>
 
+        <!-- If no comments, show form to add a new comment -->
         <div v-else class="no-comments">
-          <p>No comments available for this post.</p>
+          <form @submit.prevent="addNewComment(post.post_id)">
+            <div>
+              <input 
+                v-model="newCommentContent[post.post_id]" 
+                placeholder="What's on your mind?" 
+                :aria-label="'Add comment for post ' + post.post_id"
+              />
+              <button type="submit">Add Comment</button>
+            </div>
+          </form>
         </div>
       </li>
     </ul>
@@ -46,7 +57,7 @@
 </template>
 
 <script>
-import { loadPostsAndComments, deletePost as deletePostService } from '@/postsServices';
+import { loadPostsAndComments, deletePost as deletePostService, deleteComment as deleteCommentService, addComment } from '@/postsServices';
 
 export default {
   data() {
@@ -54,6 +65,7 @@ export default {
       posts: [],
       loading: true,
       errorMessage: '',
+      newCommentContent: {}, // Store comment content per post
     };
   },
   methods: {
@@ -67,23 +79,75 @@ export default {
         return;
       }
 
-      // The posts data is already structured as desired
       this.posts = data;
       this.loading = false;
     },
+
     async deletePost(postId) {
       try {
-        await deletePostService(postId);  // Call the service function to delete the post
-        this.posts = this.posts.filter(post => post.post_id !== postId);  // Update posts by removing the deleted post
+        await deletePostService(postId);
+        this.posts = this.posts.filter(post => post.post_id !== postId);
         console.log(`Post with ID ${postId} deleted successfully`);
       } catch (error) {
-        this.errorMessage = 'Failed to delete post';  // Display error message if delete fails
+        this.errorMessage = 'Failed to delete post';
         console.error(error.message);
+      }
+    },
+
+  async deleteComment(postId, commentId) {
+  try {
+    const response = await deleteCommentService(commentId);
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    // Find the post and remove the comment from its list
+    const post = this.posts.find(post => post.post_id === postId);
+    if (post) {
+      post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
+    }
+
+    console.log(`Comment with ID ${commentId} deleted successfully from post ${postId}`);
+  } catch (error) {
+    this.errorMessage = 'Failed to delete comment';
+    console.error(error.message);
+  }
+},
+
+
+    async addNewComment(postId) {
+      const commentContent = this.newCommentContent[postId];
+      
+      if (!commentContent || !commentContent.trim()) {
+        this.errorMessage = 'Comment content cannot be empty.';
+        return;
+      }
+
+      try {
+        const { data, error } = await addComment(postId, commentContent);
+
+        if (error) {
+          this.errorMessage = error;
+          return;
+        }
+
+        const post = this.posts.find(post => post.post_id === postId);
+        if (post) {
+          post.comments.push(data);
+        }
+
+        // Reset the comment input field for this specific post after submission
+        this.newCommentContent[postId] = '';
+        console.log(`Comment added successfully for post ID ${postId}`);
+      } catch (error) {
+        this.errorMessage = 'Failed to add comment';
+        console.error(error);
       }
     },
   },
   created() {
-    this.fetchPostsAndComments(); // Fetch posts and comments when the component is created
+    this.fetchPostsAndComments();
   },
 };
 </script>

@@ -47,30 +47,45 @@ export const addNewPost = async (contents) => {
 
 
 export const deletePost = async (postId) => {
-  // SQL to delete all comments related to the post
+
+  const deletePostSQL = `
+  DELETE FROM forum_schema."Post" 
+  WHERE post_id = $1;
+`;
   const deleteCommentsSQL = `
     DELETE FROM forum_schema."Comment" 
     WHERE post_id = $1;
   `;
 
-  // SQL to delete the post itself
-  const deletePostSQL = `
-    DELETE FROM forum_schema."Post" 
-    WHERE post_id = $1;
-  `;
+ try {
+   // First, delete associated comments (if any)
+   console.log(`Attempting to delete comments for post_id ${postId}`);
+   const deleteCommentsResult = await query(deleteCommentsSQL, [postId]);
+   console.log(`deleteCommentsResult.rowCount: ${deleteCommentsResult.rowCount}`); // Log comment deletion result
 
-  try {
-    // First, delete associated comments (if any)
-    await query(deleteCommentsSQL, [postId]);
+   // Then delete the post
+   console.log(`Attempting to delete post with post_id ${postId}`);
+   const deletePostResult = await query(deletePostSQL, [postId]);
+   console.log(`deletePostResult.rowCount: ${deletePostResult.rowCount}`); // Log post deletion result
 
-    // Then delete the post
-    const deleteResult = await query(deletePostSQL, [postId]);
+   if (deleteCommentsResult.rowCount > 0 || deletePostResult.rowCount > 0) {
+     console.log(`Post and its comments with ID ${postId} deleted successfully.`);
+   } else {
+     console.log(`No post or comments were deleted for post_id ${postId}. Maybe it doesn't exist.`);
+   }
 
-    console.log(`Post with ID ${postId} and its comments deleted successfully.`);
-    return deleteResult; // Return result or a success message if needed
-  } catch (error) {
-    console.error('Error deleting post from database:', error);
-    throw error;  // Rethrow error to be handled by the calling function
-  }
+   return deletePostResult;  // You can return the result or a success message if needed
+
+ } catch (error) {
+   console.error('Error deleting post from database:', error);
+   console.error('Error details:', error.message);  // Log the specific error message
+   console.error('Error stack:', error.stack);    // Log the full stack trace
+
+   // Check for foreign key constraints
+   if (error.code === '23503') {  // Postgres foreign key violation error code
+     console.error('Foreign key violation: Could not delete because there are dependent records.');
+   }
+
+   throw error;  // Rethrow the error for the calling function to handle
+ }
 };
-

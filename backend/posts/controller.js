@@ -58,13 +58,31 @@ export const add_posts = async (req, res) => {
     res.status(500).json({ message: 'Error adding post' });  // Handle errors
   }
 };
+export const delete_posts = async (req, res) => {
+  const { postId } = req.params;  // Extract postId from the request parameters
 
-export async function deletePost(postId) {
+  // Log the postId to the console
+  console.log('Post ID to delete:', postId);
+
   try {
-    const response = await axios.delete(`http://localhost:3001/api/posts/${postId}`);
-    return { data: response.data, error: null };
+    // Call the deletePost function from queries.js to delete the post
+    const result = await deletePost(postId);
+
+    // If no rows were affected, the post wasn't found
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Send a success message if post was deleted successfully
+    res.status(200).json({ message: 'Post and its associated comments deleted successfully' });
   } catch (error) {
-    console.error('Error deleting post:', error.response?.data || error.message);
-    return { data: null, error: error.response?.data?.message || 'An error occurred' };
+    console.error('Error deleting post:', error);
+    
+    // Enhance error handling by distinguishing between different types of errors
+    if (error.code === '23503') {
+      return res.status(400).json({ message: 'Cannot delete post due to existing dependencies (comments)' });
+    }
+    
+    res.status(500).json({ message: 'Error deleting post' });
   }
-}
+};
