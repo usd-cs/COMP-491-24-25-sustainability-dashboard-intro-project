@@ -1,16 +1,24 @@
-import { addComment, removeComment } from './queries.js';
+import { addComment, removeComment } from './queries.js';  // Import the addComment function
+
 // Add a new comment
 export const add_comment = async (req, res) => {
-  const { contents, user_id, post_id } = req.body;  // Extract fields from request body
+  const { content, post_id } = req.body;  // Extract content and post_id from the request body
+
+  // Validate post_id
+  if (!post_id) {
+    return res.status(400).json({ message: 'Post ID is required' });
+  }
+
   try {
     // Add the comment to the database
-    const newComment = await addComment(contents, user_id, post_id);  // Correct function name
+    const newComment = await addComment(content, post_id);  // Pass the post_id along with content
     res.status(201).json(newComment);  // Respond with the newly added comment
   } catch (error) {
     console.error('Error adding comment:', error);
-    res.status(500).json({ message: 'Error adding comment' });
+    res.status(500).json({ message: 'Error adding comment' });  // Handle error with a proper message
   }
 };
+
 
 // Remove a comment by ID
 export const remove_comment = async (req, res) => {
@@ -37,6 +45,6 @@ export const remove_comment = async (req, res) => {
       return res.status(400).json({ message: 'Cannot delete comment due to existing dependencies' });
     }
     
-    res.status(500).json({ message: 'Error deleting comment' });
+    res.status(500).json({ message: 'Error deleting comment' });  // Handle general error
   }
 };

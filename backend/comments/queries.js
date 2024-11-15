@@ -1,22 +1,27 @@
 import { query } from '../database_connection.js'; // Adjust the path to match your project structure
 
+export const addComment = async (content, post_id) => {
+  const userId = 2;  // Replace with actual user ID if needed
 
-export const addComment = async (contents, post_id) => {
-  // Step 1: Retrieve the current highest comment_id
-  const userId = 2
   const getMaxIdSql = `SELECT MAX(comment_id) AS max_id FROM forum_schema."Comment";`;
-  const maxIdResult = await query(getMaxIdSql);
-  const nextCommentId = maxIdResult.rows[0]?.max_id + 1 || 1; // If no comment exists, start from 1
+  try {
+    const maxIdResult = await query(getMaxIdSql);
+    const nextCommentId = maxIdResult.rows[0]?.max_id + 1 || 1;
 
-  // Step 2: Insert the new comment with the incremented ID
-  const sql = `
-    INSERT INTO forum_schema."Comment" (comment_id, contents, user_id, post_id)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *;
-  `;
-  const result = await query(sql, [nextCommentId, contents, userId, post_id]);
+    // Insert the new comment with the provided post_id
+    const insertCommentSQL = `
+      INSERT INTO forum_schema."Comment" (comment_id, contents, user_id, post_id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
+    const result = await query(insertCommentSQL, [nextCommentId, content, userId, post_id]);
 
-  return result.rows[0];  // Return the inserted comment object with the manually set comment_id
+    console.log(`Comment with ID ${nextCommentId} added successfully to post_id ${post_id} for user_id ${userId}`);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error adding comment to database:', error);
+    throw error;
+  }
 };
 
 // Remove a comment by ID and handle dependencies
@@ -24,7 +29,7 @@ export const removeComment = async (commentId) => {
   const deleteCommentSQL = `
     DELETE FROM forum_schema."Comment" 
     WHERE comment_id = $1
-    RETURNING *;
+    RETURNING *;  -- This will return the deleted row if it exists
   `;
 
   try {
@@ -42,13 +47,15 @@ export const removeComment = async (commentId) => {
     }
   } catch (error) {
     console.error('Error deleting comment from database:', error);
+    console.error('Error details:', error.message);  // Log the specific error message
+    console.error('Error stack:', error.stack);    // Log the full stack trace
 
     // Check for foreign key constraints or other violations
     if (error.code === '23503') {  // Postgres foreign key violation error code
       console.error('Foreign key violation: Could not delete comment due to existing dependencies.');
     }
 
-    // Throw the error so the calling function can handle it
+    // Rethrow the error so the calling function can handle it
     throw error;
   }
 };

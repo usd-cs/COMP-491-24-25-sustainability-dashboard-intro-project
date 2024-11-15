@@ -58,6 +58,8 @@ export const add_posts = async (req, res) => {
     res.status(500).json({ message: 'Error adding post' });  // Handle errors
   }
 };
+
+
 export const delete_posts = async (req, res) => {
   const { postId } = req.params;  // Extract postId from the request parameters
 

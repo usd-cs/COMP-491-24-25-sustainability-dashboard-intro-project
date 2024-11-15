@@ -43,20 +43,23 @@ export async function deletePost(postId) {
   }
 }
 
-export async function addComment(commentContent) {
+// does not work yet
+
+export const addComment = async (commentContent, postId) => {
   try {
+    // Ensure you're sending both content and postId
     const response = await axios.post('http://localhost:3002/api/comments/add_comment', {
-      content: commentContent,  // Sending the comment content
+      content: commentContent,  // The content of the comment
+      postId: postId,           // The ID of the post the comment is related to
     });
 
-    console.log('Comment added:', response.data);  // Log the response data from the server
-    return { data: response.data, error: null };  // Return the new comment data from the server
+    return response.data;  // Return the server response data
   } catch (error) {
-    const errorMessage = error.response ? error.response.data : error.message;
-    console.error('Error adding comment:', errorMessage);  // Log the error message
-    throw new Error('Failed to add comment');  // Throw error for frontend to handle
+    console.error('Error adding comment:', error);
+    // Check if error.response exists and return the error message
+    return { error: error.response ? error.response.data.message : 'Failed to add comment' };
   }
-}
+};
 
 export async function deleteComment(commentId) {
   try {
