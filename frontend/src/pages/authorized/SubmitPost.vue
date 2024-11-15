@@ -20,12 +20,16 @@ export default {
   methods: {
     async submitPost() {
       if (this.newPostContent.trim()) {
+        console.log(this.newPostContent);  // Corrected reference
         try {
-          // Send the newPostContent to the addPost function
-          const newPost = await addPost(this.newPostContent); 
-          console.log('New post added:', newPost);
-          this.$emit('post-added', newPost); // Emit the new post to the parent
-          this.newPostContent = ''; // Clear the input field
+          const { data, error } = await addPost(this.newPostContent);
+          if (error) {
+            alert(error);
+          } else {
+            console.log('New post added:', data);
+            this.$emit('post-added', data); // Emit the new post to the parent
+            this.newPostContent = ''; // Clear the input field
+          }
         } catch (error) {
           console.error('Error adding post:', error);
           alert('Failed to add post. Please try again.');
@@ -33,5 +37,5 @@ export default {
       }
     },
   },
-}
+};
 </script>
