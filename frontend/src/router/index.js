@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Unauthorized from '@/pages/unauthorized/App.vue';
 import Authorized from '@/pages/authorized/App.vue';
-import AdminAuthorized from '@/pages/authorized/App.vue';
+import AdminAuthorized from '@/pages/adminauthorized/App.vue';
 
 const routes = [
   {

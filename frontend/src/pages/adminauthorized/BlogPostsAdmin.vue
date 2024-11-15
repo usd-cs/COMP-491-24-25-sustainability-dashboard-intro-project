@@ -91,10 +91,7 @@ export default {
 
     async deleteComment(commentId) {
   try {
-    // Call the service function to delete the comment
     await deleteCommentService(commentId);
-
-    // Remove the deleted comment from the local state
     this.posts.forEach(post => {
       post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
     });
@@ -110,11 +107,9 @@ export default {
 async addNewComment(postId) {
     const commentContent = this.newCommentContent[postId];
 
-    // Log the values to make sure they are correct
-    console.log('Adding comment to post:', postId);
-    console.log('Comment content:', commentContent);
+   // console.log('Adding comment to post:', postId);
+   // console.log('Comment content:', commentContent);
 
-    // Validate that the comment content isn't empty
     if (!commentContent || !commentContent.trim()) {
       this.errorMessage = 'Comment content cannot be empty.';
       return;

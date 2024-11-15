@@ -18,7 +18,6 @@
       <li v-for="post in posts" :key="post.post_id" class="post">
         <div class="post-header">
           <h2>{{ post.contents }}</h2>
-          <button @click="deletePost(post.post_id)" class="delete-button">Delete Post</button>
           <p class="post-meta">Posted by User {{ post.user_id }}</p>
         </div>
         <!-- Show comments if they exist -->
@@ -28,19 +27,18 @@
             <li v-for="comment in post.comments" :key="comment.comment_id" class="comment">
               <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
               <p>{{ comment.contents }}</p>
-              <button @click="deleteComment(comment.comment_id)" class="delete-button">Delete Comment</button>
             </li>
           </ul>
         </div>
         <!-- If no comments, show form to add a new comment -->
         <div class="no-comments">
           <form @submit.prevent="addNewComment(post.post_id)">
-  <div>
-    <input 
-      v-model="newCommentContent[post.post_id]" 
-      placeholder="What's on your mind?" 
-      :aria-label="'Add comment for post ' + post.post_id"
-    />
+        <div>
+            <input 
+                v-model="newCommentContent[post.post_id]" 
+                placeholder="What's on your mind?" 
+                :aria-label="'Add comment for post ' + post.post_id"
+            />
     <button type="submit">Add Comment</button>
   </div>
 </form>
@@ -49,9 +47,8 @@
     </ul>
   </div>
 </template>
-
 <script>
-import { loadPostsAndComments, deletePost as deletePostService, deleteComment as deleteCommentService, addComment as addCommentService } from '@/postsServices';
+import { loadPostsAndComments, addComment as addCommentService } from '@/postsServices';
 
 export default {
   data() {
@@ -77,73 +74,42 @@ export default {
       this.loading = false;
     },
 
-    async deletePost(postId) {
-      try {
-        await deletePostService(postId);
-        this.posts = this.posts.filter(post => post.post_id !== postId);
-        console.log(`Post with ID ${postId} deleted successfully`);
-      } catch (error) {
-        this.errorMessage = 'Failed to delete post';
-        console.error(error.message);
-      }
-    },
+    async addNewComment(postId) {
+      const commentContent = this.newCommentContent[postId];
 
+      // Log the values to make sure they are correct
+      console.log('Adding comment to post:', postId);
+      console.log('Comment content:', commentContent);
 
-    async deleteComment(commentId) {
-  try {
-    // Call the service function to delete the comment
-    await deleteCommentService(commentId);
-
-    // Remove the deleted comment from the local state
-    this.posts.forEach(post => {
-      post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
-    });
-
-    console.log(`Comment with ID ${commentId} deleted successfully`);
-  } catch (error) {
-    this.errorMessage = 'Failed to delete comment';
-    console.error('Failed to delete comment:', error.message);
-  }
-}
-
-,
-async addNewComment(postId) {
-    const commentContent = this.newCommentContent[postId];
-
-    // Log the values to make sure they are correct
-    console.log('Adding comment to post:', postId);
-    console.log('Comment content:', commentContent);
-
-    // Validate that the comment content isn't empty
-    if (!commentContent || !commentContent.trim()) {
-      this.errorMessage = 'Comment content cannot be empty.';
-      return;
-    }
-    try {
-      const { data, error } = await addCommentService(commentContent, postId);
-      if (error) {
-        this.errorMessage = error;
+      // Validate that the comment content isn't empty
+      if (!commentContent || !commentContent.trim()) {
+        this.errorMessage = 'Comment content cannot be empty.';
         return;
       }
-      const post = this.posts.find(post => post.post_id === postId);
-      if (post) {
-        post.comments.push(data);  // Add the new comment to the post's comment list
+      try {
+        const { data, error } = await addCommentService(commentContent, postId);
+        if (error) {
+          this.errorMessage = error;
+          return;
+        }
+        const post = this.posts.find(post => post.post_id === postId);
+        if (post) {
+          post.comments.push(data);  // Add the new comment to the post's comment list
+        }
+        this.newCommentContent[postId] = '';  // Reset the comment input field for this post
+        console.log(`Comment added successfully for post ID ${postId}`);
+      } catch (error) {
+        this.errorMessage = 'Failed to add comment';
+        console.error('Error adding comment:', error);
       }
-      this.newCommentContent[postId] = '';  // Reset the comment input field for this post
-      console.log(`Comment added successfully for post ID ${postId}`);
-    } catch (error) {
-      this.errorMessage = 'Failed to add comment';
-      console.error('Error adding comment:', error);
-    }
-  }
-
-
+    },
   },
   created() {
     this.fetchPostsAndComments();
   },
 };
 </script>
+
 
 <style scoped>
 /* Basic container styling */

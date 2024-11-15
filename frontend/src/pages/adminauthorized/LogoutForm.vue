@@ -7,9 +7,7 @@
 <script>
 // Export the logout function to allow testing
 export function logout() {
-    localStorage.removeItem('admin'); // Adjust according to auth setup
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
+    localStorage.removeItem('authToken'); // Adjust according to auth setup
     // Redirect to home
     this.$router.push('/');
     this.$emit('logout');

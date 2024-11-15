@@ -23,7 +23,7 @@ export async function login(formData, router) {
       localStorage.setItem('admin',user.admin)
       
       // Check if the user is an admin
-      if (user.id == 3) {
+      if (user.admin === true) {
         // Return 'admin' to indicate the user is an admin
         router.push('/adminauthorized');
         return 'Admin login successful, redirecting to admin page.';

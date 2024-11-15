@@ -9,7 +9,7 @@
         <div class="left-column">
           <!-- Blog posts component for authorized users -->
           <SubmitPost />
-          <BlogPostsAuth ref="blogPostsAuth" :posts="posts" />
+          <BlogPostsAdmin ref="blogPostsAdmin" :posts="posts" />
         </div>
   
   
@@ -18,19 +18,19 @@
   </template>
   
   <script>
-  import BlogPostsAuth from './BlogPostsAdmin.vue';
+  import BlogPostsAdmin from './BlogPostsAdmin.vue';
   import SubmitPost from './SubmitPost.vue'; // Updated import for SubmitPost
   import { loadPostsAndComments } from '@/postsServices';
   export default {
     name: 'AdminAuthorized',
     components: {
-      BlogPostsAuth,
+      BlogPostsAdmin,
       SubmitPost, // Register SubmitPost component
     },
     data() {
       return {
-        posts: [],   // Array to store the posts fetched from the API
-        error: null, // To store any errors if fetching posts fails
+        posts: [],  
+        error: null, 
       };
     },
     async created() {
@@ -49,7 +49,6 @@
     methods: {
       logout() {
         // Clear token and redirect to Unauthorized page
-        localStorage.removeItem('authToken');
         this.$router.push({ name: 'Unauthorized' });
       },
     },
