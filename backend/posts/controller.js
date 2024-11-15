@@ -59,7 +59,7 @@ export const add_posts = async (req, res) => {
   }
 };
 
-export async function deletePost(postId) {
+export async function delete_post(postId) {
   try {
     const response = await axios.delete(`http://localhost:3001/api/posts/${postId}`);
     return { data: response.data, error: null };
