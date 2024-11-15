@@ -61,27 +61,20 @@ export async function addComment(commentContent, postId) {
     }
   }
 };
+
+
+
 export async function deleteComment(commentId) {
   if (!commentId) {
     return { data: null, error: 'Comment ID is required' };
   }
-
   try {
-    // Make the DELETE request with commentId in the URL
     const response = await axios.delete(`http://localhost:3002/api/comments/${commentId}`);
-    
-    // Log success response if needed
-    console.log('Successfully deleted comment:', response.data);
-    
     return { data: response.data, error: null };
   } catch (error) {
-    // Handle different error scenarios
     if (error.response) {
       console.error('Error deleting comment:', error.response.data);
       return { data: null, error: error.response.data.message || 'An error occurred while deleting the comment' };
-    } else {
-      console.error('Error deleting comment:', error.message);
-      return { data: null, error: 'An unexpected error occurred' };
     }
   }
 }

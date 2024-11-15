@@ -15,15 +15,13 @@ export const add_comment = async (req, res) => {
 };
 
 export const remove_comment = async (req, res) => {
-  const { comment_id } = req.params;
-
-  if (!comment_id) {
+  const { commentId } = req.params;
+  if (!commentId) {
     console.error('Comment ID is missing');
     return res.status(400).json({ message: 'Comment ID is required' });
   }
-
   try {
-    const result = await removeComment(comment_id);
+    const result = await removeComment(commentId);
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Comment not found' });
     }

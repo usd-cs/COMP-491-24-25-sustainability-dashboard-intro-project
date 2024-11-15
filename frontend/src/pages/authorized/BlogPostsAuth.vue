@@ -99,30 +99,21 @@ export default {
 
     async deleteComment(commentId) {
   try {
-    // Log the comment ID to verify it's being passed correctly
-    console.log('Attempting to delete comment with ID:', commentId);
-
     // Call the service function to delete the comment
-    const result = await deleteCommentService(commentId);
+    await deleteCommentService(commentId);
 
-    // Check for errors in the response
-    if (result.error) {
-      console.error('Error deleting comment:', result.error);
-      this.errorMessage = result.error;
-      return;
-    }
-
-    // Successfully deleted, remove the comment from the local state
+    // Remove the deleted comment from the local state
     this.posts.forEach(post => {
       post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
     });
 
-    console.log('Comment deleted successfully');
+    console.log(`Comment with ID ${commentId} deleted successfully`);
   } catch (error) {
-    console.error('Failed to delete comment:', error.message);
     this.errorMessage = 'Failed to delete comment';
+    console.error('Failed to delete comment:', error.message);
   }
 }
+
 ,
 async addNewComment(postId) {
     const commentContent = this.newCommentContent[postId];

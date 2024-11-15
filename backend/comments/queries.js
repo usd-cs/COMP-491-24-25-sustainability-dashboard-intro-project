@@ -44,7 +44,7 @@ export const removeComment = async (commentId) => {
     // Assuming `result` is an array with the first item being the deleted comment
     if (result && result.length > 0) {
       console.log(`Comment with comment_id ${commentId} deleted successfully.`);
-      return result[0];  // Return the first item in the result, which is the deleted comment
+      return result;  // Return the first item in the result, which is the deleted comment
     } else {
       console.log(`No comment found or deleted for comment_id ${commentId}. Maybe it doesn't exist.`);
       return null;

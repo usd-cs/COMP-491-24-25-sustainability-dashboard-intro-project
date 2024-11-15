@@ -62,25 +62,16 @@ export const add_posts = async (req, res) => {
 
 export const delete_posts = async (req, res) => {
   const { postId } = req.params;  // Extract postId from the request parameters
-
-  // Log the postId to the console
   console.log('Post ID to delete:', postId);
 
   try {
-    // Call the deletePost function from queries.js to delete the post
     const result = await deletePost(postId);
-
-    // If no rows were affected, the post wasn't found
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Post not found' });
     }
-
-    // Send a success message if post was deleted successfully
     res.status(200).json({ message: 'Post and its associated comments deleted successfully' });
   } catch (error) {
     console.error('Error deleting post:', error);
-    
-    // Enhance error handling by distinguishing between different types of errors
     if (error.code === '23503') {
       return res.status(400).json({ message: 'Cannot delete post due to existing dependencies (comments)' });
     }
