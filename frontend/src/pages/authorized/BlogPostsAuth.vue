@@ -40,6 +40,16 @@
         <div v-else class="no-comments">
           <p>No comments available for this post.</p>
         </div>
+
+        <!-- Add comment form -->
+        <form @submit.prevent="addComment(post.post_id)" class="add-comment-form">
+          <input
+            v-model="newComments[post.post_id]"
+            placeholder="Write a comment..."
+            class="comment-input"
+          />
+          <button type="submit" class="add-comment-button">Add Comment</button>
+        </form>
       </li>
     </ul>
   </div>
@@ -54,6 +64,7 @@ export default {
       posts: [],
       loading: true,
       errorMessage: '',
+      newComments: {}, // Object to hold new comment inputs keyed by post_id
     };
   },
   methods: {
@@ -67,23 +78,44 @@ export default {
         return;
       }
 
-      // The posts data is already structured as desired
       this.posts = data;
       this.loading = false;
     },
     async deletePost(postId) {
       try {
-        await deletePostService(postId);  // Call the service function to delete the post
-        this.posts = this.posts.filter(post => post.post_id !== postId);  // Update posts by removing the deleted post
+        await deletePostService(postId);
+        this.posts = this.posts.filter(post => post.post_id !== postId);
         console.log(`Post with ID ${postId} deleted successfully`);
       } catch (error) {
-        this.errorMessage = 'Failed to delete post';  // Display error message if delete fails
+        this.errorMessage = 'Failed to delete post';
         console.error(error.message);
+      }
+    },
+    addComment(postId) {
+      const commentContent = this.newComments[postId]?.trim();
+      if (commentContent) {
+        const newComment = {
+          comment_id: Date.now(), // Generate a unique ID
+          user_id: 1, // Replace with the actual logged-in user ID
+          contents: commentContent,
+        };
+
+        // Find the post and add the new comment
+        const post = this.posts.find(post => post.post_id === postId);
+        if (post) {
+          if (!post.comments) {
+            post.comments = [];
+          }
+          post.comments.push(newComment);
+        }
+
+        // Clear the input field
+        this.newComments[postId] = '';
       }
     },
   },
   created() {
-    this.fetchPostsAndComments(); // Fetch posts and comments when the component is created
+    this.fetchPostsAndComments();
   },
 };
 </script>
@@ -166,9 +198,26 @@ export default {
   margin: 0;
 }
 
-/* No comments available message styling */
-.no-comments {
-  font-style: italic;
-  color: #aaa;
+/* Add comment form */
+.add-comment-form {
+  display: flex;
+  margin-top: 10px;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-comment-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>

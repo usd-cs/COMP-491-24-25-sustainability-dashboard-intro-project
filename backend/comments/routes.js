@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { get_comments_by_post } from './controller.js';
+import { add_comment, remove_comment } from './controller.js';
 
 const router = Router();
 
 
 
-router.post("/", controller.add_comments);
-router.delete("/:id", controller.remove_comments);
+router.post("/", add_comment);
+router.delete("/:id", remove_comment);
 
 
 export default router;
