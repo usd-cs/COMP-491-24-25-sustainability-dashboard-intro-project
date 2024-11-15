@@ -12,6 +12,8 @@ const pool = new Pool({
 export const query = async (text, params) => {
   try {
     const result = await pool.query(text, params);
+    //console.log(result) //this logs everything in the terminal that is happening when we query
+    console.log(result.rows[0].admin)
     return result.rows;
   } catch (err) {
     console.error('Database query error:', err);

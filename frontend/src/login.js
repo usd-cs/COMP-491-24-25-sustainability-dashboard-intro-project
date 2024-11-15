@@ -11,16 +11,27 @@ export async function login(formData, router) {
     const response = await axios.post('http://localhost:3000/api/auth/login', {
       username: formData.username,
       password: formData.password,
-
     });
 
     // Handle successful login
     if (response.status === 200) {
       // Store user ID and possibly other user details in localStorage
-      localStorage.setItem('userId', response.data.user.user_id); // Store user ID
-      localStorage.setItem('userName', response.data.user.username); // Optional: Store username or other data
-      router.push('/authorized'); // Redirect to authorized page
-      return response.data.message; // Return message received from backend
+      const user = response.data.user;
+      //console.log(user)
+      localStorage.setItem('userId', user.user_id); // Store user ID
+      localStorage.setItem('userName', user.username); // Optional: Store username or other data
+      localStorage.setItem('admin',user.admin)
+      
+      // Check if the user is an admin
+      if (user.id == 3) {
+        // Return 'admin' to indicate the user is an admin
+        router.push('/adminauthorized');
+        return 'Admin login successful, redirecting to admin page.';
+      } else {
+        // Return 'user' to indicate a normal user
+        router.push('/authorized');
+        return 'User login successful, redirecting to user page.';
+      }
     } else {
       return 'Unexpected response from server.';
     }

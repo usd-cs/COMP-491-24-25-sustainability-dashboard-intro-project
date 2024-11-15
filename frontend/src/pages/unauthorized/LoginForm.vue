@@ -13,9 +13,6 @@
       <button type="submit">Login</button>
     </form>
     <p v-if="loginMessage">{{ loginMessage }}</p>
-    <div v-if="isLoggedIn">
-      <p>Welcome, you are now logged in!</p>
-    </div>
   </div>
 </template>
 
