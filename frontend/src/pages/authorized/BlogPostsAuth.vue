@@ -61,10 +61,11 @@ import { loadPostsAndComments, deletePost as deletePostService } from '@/postsSe
 export default {
   data() {
     return {
-      posts: [],
-      loading: true,
-      errorMessage: '',
-      newComments: {}, // Object to hold new comment inputs keyed by post_id
+      posts: [], // Posts and comments
+      loading: true, // Loading state
+      errorMessage: '', // Error messages
+      newComments: {}, // Stores new comment inputs keyed by post_id
+      userId: null, // Dynamically set later
     };
   },
   methods: {
@@ -91,30 +92,58 @@ export default {
         console.error(error.message);
       }
     },
-    addComment(postId) {
-      const commentContent = this.newComments[postId]?.trim();
-      if (commentContent) {
-        const newComment = {
-          comment_id: Date.now(), // Generate a unique ID
-          user_id: 1, // Replace with the actual logged-in user ID
-          contents: commentContent,
-        };
+    async addComment(postId) {
+      const content = this.newComments[postId]?.trim();
 
-        // Find the post and add the new comment
-        const post = this.posts.find(post => post.post_id === postId);
-        if (post) {
-          if (!post.comments) {
-            post.comments = [];
-          }
-          post.comments.push(newComment);
+      if (!content) {
+        alert('Comment cannot be empty!');
+        return;
+      }
+
+      if (!this.userId) {
+        console.error('Error: User ID is not set.');
+        alert('Error: Unable to identify user. Please log in again.');
+        return;
+      }
+
+      try {
+        // Send the new comment to the backend
+        const response = await fetch('http://localhost:3002/api/comments/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: content,
+            user_id: this.userId+1, // Dynamically set user ID
+            post_id: postId,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(errorMessage);
         }
 
-        // Clear the input field
+        console.log('Comment successfully added:', await response.json());
+
+        // Refresh posts and comments by fetching them again
+        await this.fetchPostsAndComments();
+
+        // Clear the input field for the specific post
         this.newComments[postId] = '';
+      } catch (error) {
+        console.error('Error adding comment:', error);
+        this.errorMessage = 'Failed to add comment. Please try again.';
       }
+    },
+    getUserId() {
+      // Replace this with actual logic to get user ID from authentication
+      return 1; // Example: Return a hardcoded user ID for testing
     },
   },
   created() {
+    this.userId = this.getUserId(); // Dynamically set the user ID
     this.fetchPostsAndComments();
   },
 };
