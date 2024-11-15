@@ -1,4 +1,4 @@
-import { getAllPosts, addNewPost, removePostById } from './queries.js'; // Import the reusable query functions
+import { getAllPosts, addNewPost} from './queries.js'; // Import the reusable query functions
 
 // Get all posts and comments associated with them
 export const get_posts = async (req, res) => {
@@ -41,12 +41,15 @@ export const get_posts = async (req, res) => {
   }
 };
 
-
-export const addPost = async (req, res) => {
+export const add_posts = async (req, res) => {
   const { content } = req.body;  // Extract content from the request body
+
+  // Log the content to the console
+  console.log('Content received:', content);
 
   try {
     const newPost = await addNewPost(content);  // Call the addNewPost function to insert the post into the database
+    console.log(newPost);  // Log the new post data after it's inserted into the database
 
     // Send the newly created post back to the client as a response
     res.status(201).json(newPost);  // 201 Created status with the new post data
@@ -56,18 +59,3 @@ export const addPost = async (req, res) => {
   }
 };
 
-
-// Remove a post by ID
-export const remove_posts = async (req, res) => {
-  const { id } = req.params;  // Extract the post ID from the URL parameters
-  try {
-    const deletedPost = await removePostById(id);  // Call the reusable query function
-    if (!deletedPost) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-    res.status(204).send();  // Respond with no content (successfully deleted)
-  } catch (error) {
-    console.error('Error deleting post:', error);
-    res.status(500).json({ message: 'Error deleting post' });
-  }
-};

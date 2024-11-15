@@ -8,13 +8,11 @@
     <div class="main-content">
       <div class="left-column">
         <!-- Blog posts component for authorized users -->
+        <SubmitPost />
         <BlogPostsAuth ref="blogPostsAuth" :posts="posts" />
       </div>
 
-      <div class="right-column">
-        <!-- Submit Post component for authorized users to add new posts -->
-        <SubmitPost />
-      </div>
+
     </div>
   </div>
 </template>
