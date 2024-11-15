@@ -44,3 +44,33 @@ export const addNewPost = async (contents) => {
     throw error;  // Rethrow the error to be handled by the calling function
   }
 };
+
+
+export const deletePost = async (postId) => {
+  // SQL to delete all comments related to the post
+  const deleteCommentsSQL = `
+    DELETE FROM forum_schema."Comment" 
+    WHERE post_id = $1;
+  `;
+
+  // SQL to delete the post itself
+  const deletePostSQL = `
+    DELETE FROM forum_schema."Post" 
+    WHERE post_id = $1;
+  `;
+
+  try {
+    // First, delete associated comments (if any)
+    await query(deleteCommentsSQL, [postId]);
+
+    // Then delete the post
+    const deleteResult = await query(deletePostSQL, [postId]);
+
+    console.log(`Post with ID ${postId} and its comments deleted successfully.`);
+    return deleteResult; // Return result or a success message if needed
+  } catch (error) {
+    console.error('Error deleting post from database:', error);
+    throw error;  // Rethrow error to be handled by the calling function
+  }
+};
+

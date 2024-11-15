@@ -17,11 +17,12 @@
       <p>No posts available.</p>
     </div>
 
-    <!-- Display posts -->
+    <!-- Display posts and add a trash button next to each -->
     <ul v-if="!loading && posts.length > 0" class="post-list">
       <li v-for="post in posts" :key="post.post_id" class="post">
         <div class="post-header">
           <h2>{{ post.contents }}</h2>
+          <button @click="deletePost(post.post_id)" class="delete-button">Delete Post</button>
           <p class="post-meta">Posted by User {{ post.user_id }}</p>
         </div>
 
@@ -45,7 +46,7 @@
 </template>
 
 <script>
-import { loadPostsAndComments } from '@/postsServices';
+import { loadPostsAndComments, deletePost as deletePostService } from '@/postsServices';
 
 export default {
   data() {
@@ -69,6 +70,16 @@ export default {
       // The posts data is already structured as desired
       this.posts = data;
       this.loading = false;
+    },
+    async deletePost(postId) {
+      try {
+        await deletePostService(postId);  // Call the service function to delete the post
+        this.posts = this.posts.filter(post => post.post_id !== postId);  // Update posts by removing the deleted post
+        console.log(`Post with ID ${postId} deleted successfully`);
+      } catch (error) {
+        this.errorMessage = 'Failed to delete post';  // Display error message if delete fails
+        console.error(error.message);
+      }
     },
   },
   created() {

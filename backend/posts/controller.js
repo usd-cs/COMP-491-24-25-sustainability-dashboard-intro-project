@@ -1,4 +1,4 @@
-import { getAllPosts, addNewPost} from './queries.js'; // Import the reusable query functions
+import { getAllPosts, addNewPost, deletePost} from './queries.js'; // Import the reusable query functions
 
 // Get all posts and comments associated with them
 export const get_posts = async (req, res) => {
@@ -59,3 +59,12 @@ export const add_posts = async (req, res) => {
   }
 };
 
+export async function deletePost(postId) {
+  try {
+    const response = await axios.delete(`http://localhost:3001/api/posts/${postId}`);
+    return { data: response.data, error: null };
+  } catch (error) {
+    console.error('Error deleting post:', error.response?.data || error.message);
+    return { data: null, error: error.response?.data?.message || 'An error occurred' };
+  }
+}
