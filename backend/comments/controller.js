@@ -2,24 +2,20 @@ import { addComment, removeComment } from './queries.js';  // Import the addComm
 
 // Add a new comment
 export const add_comment = async (req, res) => {
-  const { content, post_id } = req.body;  // Extract content and post_id from the request body
-
-  // Validate post_id
-  if (!post_id) {
-    return res.status(400).json({ message: 'Post ID is required' });
-  }
-
   try {
-    // Add the comment to the database
-    const newComment = await addComment(content, post_id);  // Pass the post_id along with content
-    res.status(201).json(newComment);  // Respond with the newly added comment
+    const { content, post_id } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ error: 'Content cannot be null or empty.' });
+    }
+
+    const newComment = await addComment(content, post_id);
+    res.status(201).json(newComment);
   } catch (error) {
     console.error('Error adding comment:', error);
-    res.status(500).json({ message: 'Error adding comment' });  // Handle error with a proper message
+    res.status(500).json({ error: error.message });
   }
 };
-
-
 // Remove a comment by ID
 export const remove_comment = async (req, res) => {
   const { comment_id } = req.params;  // Get comment ID from request parameters

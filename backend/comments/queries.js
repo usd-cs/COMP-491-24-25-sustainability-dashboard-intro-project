@@ -1,26 +1,39 @@
 import { query } from '../database_connection.js'; // Adjust the path to match your project structure
 
 export const addComment = async (content, post_id) => {
-  const userId = 2;  // Replace with actual user ID if needed
+  const userId = 2; // Replace with actual user ID if needed
 
-  const getMaxIdSql = `SELECT MAX(comment_id) AS max_id FROM forum_schema."Comment";`;
+  if (!content) {
+    console.error("Content for comment cannot be null or empty.");
+    throw new Error("Content cannot be null or empty.");
+  }
+
+  const getNextCommentIdSQL = `
+    SELECT COALESCE(MAX(comment_id), 0) + 1 AS next_comment_id FROM forum_schema."Comment";
+  `;
+
   try {
-    const maxIdResult = await query(getMaxIdSql);
-    const nextCommentId = maxIdResult.rows[0]?.max_id + 1 || 1;
+    const result = await query(getNextCommentIdSQL);
+    if (!result || !result[0]) {
+      console.error('Failed to retrieve next comment ID');
+      throw new Error('Failed to retrieve next comment ID');
+    }
 
-    // Insert the new comment with the provided post_id
+    const nextCommentId = result[0].next_comment_id;
+    console.log('Next Comment ID:', nextCommentId);
+
     const insertCommentSQL = `
       INSERT INTO forum_schema."Comment" (comment_id, contents, user_id, post_id)
       VALUES ($1, $2, $3, $4)
       RETURNING *;
     `;
-    const result = await query(insertCommentSQL, [nextCommentId, content, userId, post_id]);
 
+    const insertResult = await query(insertCommentSQL, [nextCommentId, content, userId, post_id]);
     console.log(`Comment with ID ${nextCommentId} added successfully to post_id ${post_id} for user_id ${userId}`);
-    return result.rows[0];
+    return insertResult[0]; // Return the newly inserted comment
   } catch (error) {
     console.error('Error adding comment to database:', error);
-    throw error;
+    throw new Error('Error adding comment: ' + error.message);
   }
 };
 
