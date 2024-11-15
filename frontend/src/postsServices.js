@@ -1,15 +1,10 @@
-
 import axios from 'axios';
-
 
 export async function loadPostsAndComments() {
   try {
-    // Fetch posts with their comments from the single API endpoint
     const response = await axios.get('http://localhost:3001/api/posts/get_posts');
     
     console.log('Posts and Comments fetched:', response.data);
-
-    // Return combined data
     return { data: response.data, error: null };
   } catch (error) {
     console.error('Error fetching posts and comments:', error.response ? error.response.data : error);
@@ -20,15 +15,15 @@ export async function loadPostsAndComments() {
 export async function addPost(postContent) {
   try {
     const response = await axios.post('http://localhost:3001/api/posts/add_posts', {
-      content: postContent,  // Sending post content
+      content: postContent, 
     });
 
-    console.log('Post added:', response.data); // Log the response data from the server
-    return { data: response.data, error: null };  // Return the new post data from the server
+    console.log('Post added:', response.data); 
+    return { data: response.data, error: null };  
   } catch (error) {
     const errorMessage = error.response ? error.response.data : error.message;
-    console.error('Error adding post:', errorMessage); // Log the error message
-    throw new Error('Failed to add post');  // Throw error for frontend to handle
+    console.error('Error adding post:', errorMessage);
+    throw new Error('Failed to add post');  
   }
 }
 
@@ -49,38 +44,44 @@ export async function addComment(commentContent, postId) {
       content: commentContent,
       post_id: postId,
     });
-
-    return { data: response.data, error: null };  // Ensure consistent structure
+    return { data: response.data, error: null };
   } catch (error) {
     console.error('Error adding comment:', error);
-
-    // Check if there is a response from the server
     if (error.response) {
       console.error('Response data:', error.response.data);
       return { data: null, error: error.response.data.message || 'Failed to add comment' };
     } 
-    // If there was no response, it may have been a network error
     else if (error.request) {
       console.error('Request data:', error.request);
       return { data: null, error: 'No response received from the server. Please check your connection.' };
     } 
-    // Handle other errors like incorrect configuration
     else {
       console.error('Error message:', error.message);
       return { data: null, error: 'An error occurred while adding the comment. Please try again later.' };
     }
   }
 };
-
-
 export async function deleteComment(commentId) {
+  if (!commentId) {
+    return { data: null, error: 'Comment ID is required' };
+  }
+
   try {
+    // Make the DELETE request with commentId in the URL
     const response = await axios.delete(`http://localhost:3002/api/comments/${commentId}`);
+    
+    // Log success response if needed
+    console.log('Successfully deleted comment:', response.data);
+    
     return { data: response.data, error: null };
   } catch (error) {
-    console.error('Error deleting comment:', error.response?.data || error.message);
-    return { data: null, error: error.response?.data?.message || 'An error occurred while deleting the comment' };
+    // Handle different error scenarios
+    if (error.response) {
+      console.error('Error deleting comment:', error.response.data);
+      return { data: null, error: error.response.data.message || 'An error occurred while deleting the comment' };
+    } else {
+      console.error('Error deleting comment:', error.message);
+      return { data: null, error: 'An unexpected error occurred' };
+    }
   }
 }
-
-

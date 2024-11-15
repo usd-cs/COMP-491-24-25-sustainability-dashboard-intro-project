@@ -34,6 +34,7 @@
               <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
               <p>{{ comment.contents }}</p>
               <button @click="deleteComment(comment.comment_id)" class="delete-button">Delete Comment</button>
+
             </li>
           </ul>
         </div>
@@ -95,21 +96,34 @@ export default {
       }
     },
 
+
     async deleteComment(commentId) {
-    try {
-      const response = await deleteCommentService(commentId);
-      if (response.error) {
-        throw new Error(response.error);
-      }
-    console.log(`Comment with ID ${commentId} deleted successfully`);
+  try {
+    // Log the comment ID to verify it's being passed correctly
+    console.log('Attempting to delete comment with ID:', commentId);
+
+    // Call the service function to delete the comment
+    const result = await deleteCommentService(commentId);
+
+    // Check for errors in the response
+    if (result.error) {
+      console.error('Error deleting comment:', result.error);
+      this.errorMessage = result.error;
+      return;
+    }
+
+    // Successfully deleted, remove the comment from the local state
+    this.posts.forEach(post => {
+      post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
+    });
+
+    console.log('Comment deleted successfully');
   } catch (error) {
+    console.error('Failed to delete comment:', error.message);
     this.errorMessage = 'Failed to delete comment';
-    console.error(error.message);
   }
 }
-
 ,
-
 async addNewComment(postId) {
     const commentContent = this.newCommentContent[postId];
 
@@ -122,20 +136,16 @@ async addNewComment(postId) {
       this.errorMessage = 'Comment content cannot be empty.';
       return;
     }
-
     try {
       const { data, error } = await addCommentService(commentContent, postId);
-
       if (error) {
         this.errorMessage = error;
         return;
       }
-
       const post = this.posts.find(post => post.post_id === postId);
       if (post) {
         post.comments.push(data);  // Add the new comment to the post's comment list
       }
-
       this.newCommentContent[postId] = '';  // Reset the comment input field for this post
       console.log(`Comment added successfully for post ID ${postId}`);
     } catch (error) {
