@@ -40,6 +40,16 @@
         <div v-else class="no-comments">
           <p>No comments available for this post.</p>
         </div>
+
+        <!-- Add comment form -->
+        <form @submit.prevent="addComment(post.post_id)" class="add-comment-form">
+          <input
+            v-model="newComments[post.post_id]"
+            placeholder="Write a comment..."
+            class="comment-input"
+          />
+          <button type="submit" class="add-comment-button">Add Comment</button>
+        </form>
       </li>
     </ul>
   </div>
@@ -51,9 +61,11 @@ import { loadPostsAndComments, deletePost as deletePostService } from '@/postsSe
 export default {
   data() {
     return {
-      posts: [],
-      loading: true,
-      errorMessage: '',
+      posts: [], // Posts and comments
+      loading: true, // Loading state
+      errorMessage: '', // Error messages
+      newComments: {}, // Stores new comment inputs keyed by post_id
+      userId: null, // Dynamically set later
     };
   },
   methods: {
@@ -67,23 +79,72 @@ export default {
         return;
       }
 
-      // The posts data is already structured as desired
       this.posts = data;
       this.loading = false;
     },
     async deletePost(postId) {
       try {
-        await deletePostService(postId);  // Call the service function to delete the post
-        this.posts = this.posts.filter(post => post.post_id !== postId);  // Update posts by removing the deleted post
+        await deletePostService(postId);
+        this.posts = this.posts.filter(post => post.post_id !== postId);
         console.log(`Post with ID ${postId} deleted successfully`);
       } catch (error) {
-        this.errorMessage = 'Failed to delete post';  // Display error message if delete fails
+        this.errorMessage = 'Failed to delete post';
         console.error(error.message);
       }
     },
+    async addComment(postId) {
+      const content = this.newComments[postId]?.trim();
+
+      if (!content) {
+        alert('Comment cannot be empty!');
+        return;
+      }
+
+      if (!this.userId) {
+        console.error('Error: User ID is not set.');
+        alert('Error: Unable to identify user. Please log in again.');
+        return;
+      }
+
+      try {
+        // Send the new comment to the backend
+        const response = await fetch('http://localhost:3002/api/comments/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: content,
+            user_id: this.userId+1, // Dynamically set user ID
+            post_id: postId,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(errorMessage);
+        }
+
+        console.log('Comment successfully added:', await response.json());
+
+        // Refresh posts and comments by fetching them again
+        await this.fetchPostsAndComments();
+
+        // Clear the input field for the specific post
+        this.newComments[postId] = '';
+      } catch (error) {
+        console.error('Error adding comment:', error);
+        this.errorMessage = 'Failed to add comment. Please try again.';
+      }
+    },
+    getUserId() {
+      // Replace this with actual logic to get user ID from authentication
+      return 1; // Example: Return a hardcoded user ID for testing
+    },
   },
   created() {
-    this.fetchPostsAndComments(); // Fetch posts and comments when the component is created
+    this.userId = this.getUserId(); // Dynamically set the user ID
+    this.fetchPostsAndComments();
   },
 };
 </script>
@@ -166,9 +227,26 @@ export default {
   margin: 0;
 }
 
-/* No comments available message styling */
-.no-comments {
-  font-style: italic;
-  color: #aaa;
+/* Add comment form */
+.add-comment-form {
+  display: flex;
+  margin-top: 10px;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-comment-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>
