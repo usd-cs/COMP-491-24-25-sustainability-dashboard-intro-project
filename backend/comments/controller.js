@@ -17,17 +17,3 @@ export const add_comment = async (req, res) => {
 };
 
 
-// // Remove a comment by ID
-// export const remove_comment = async (req, res) => {
-//   const { comment_id } = req.params;  // Get comment ID from request parameters
-//   try {
-//     const deletedComment = await remove_comments(comment_id);  // Remove the comment by ID
-//     if (!deletedComment) {
-//       return res.status(404).json({ message: 'Comment not found' });
-//     }
-//     res.status(204).send();  // Respond with no content (successfully deleted)
-//   } catch (error) {
-//     console.error('Error deleting comment:', error);
-//     res.status(500).json({ message: 'Error deleting comment' });
-//   }
-// };

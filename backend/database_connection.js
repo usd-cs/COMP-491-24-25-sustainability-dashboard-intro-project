@@ -2,11 +2,11 @@ import pkg from 'pg'; // Import the CommonJS module as a default
 const { Pool } = pkg; // Destructure Pool from the default import
 
 const pool = new Pool({
-  user: 'kaelananderson',
-  password: 'kaelan1',
+  user: 'postgres',
+  password: 'postgres',
   host: 'localhost',
   port: '5434',
-  database: 'intro_proj_db',
+  database: 'postgres',
 });
 
 export const query = async (text, params) => {
