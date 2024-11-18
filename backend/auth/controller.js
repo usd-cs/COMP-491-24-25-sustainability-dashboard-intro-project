@@ -4,22 +4,18 @@ import bcrypt from 'bcryptjs';
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
   try {
-    // Query user by username
     const user = await queryUserByUsername(username);
     console.log(user[0].admin) //gets true 
     //console.log(user[0].admin)
-    // If user is not found
     if (user.length === 0) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    // Compare provided password with hashed password stored in the database
     const passwordMatch = await bcrypt.compare(password, user[0].password);
     if (!passwordMatch) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    // Successful login response
     res.status(200).json({
       message: 'Login successful',
       user: {

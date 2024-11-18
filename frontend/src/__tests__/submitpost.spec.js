@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import axios from 'axios';
 import { submitPost } from '../submitpost';
+import { submi}
 
 // Mock axios to prevent actual network requests
 vi.mock('axios');
