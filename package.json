@@ -6,5 +6,9 @@
   "dependencies": {
     "@vue/test-utils": "^2.4.6",
     "axios": "^1.7.7"
-  }
+  },
+  "scripts": {
+  "test": "vitest"
+}
+
 }
