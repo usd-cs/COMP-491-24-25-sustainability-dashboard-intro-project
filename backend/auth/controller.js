@@ -15,8 +15,6 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-
-
     // Log the hashed password stored in the DB
     console.log('Hashed password stored in DB:', user[0].password);
 
