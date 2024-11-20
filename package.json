@@ -1,14 +1,45 @@
 {
+  "name": "comp-491-24-25-sustainability-dashboard-intro-project",
+  "version": "1.0.0",
+  "description": "A Vue.js-based web application with a Node.js backend and PostgreSQL database, supporting a sustainability-focused energy data dashboard.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usd-cs/COMP-491-24-25-sustainability-dashboard-intro-project.git"
+  },
+  "keywords": ["sustainability", "dashboard", "vue", "nodejs", "postgresql"],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/usd-cs/COMP-491-24-25-sustainability-dashboard-intro-project/issues"
+  },
+  "homepage": "https://github.com/usd-cs/COMP-491-24-25-sustainability-dashboard-intro-project#readme",
+  "dependencies": {
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5",
+    "bootstrap": "^5.3.3",
+    "bootstrap-vue": "^2.23.1",
+    "axios": "^1.7.7",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3"
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.0",
-    "vitest": "^2.1.5"
-  },
-  "dependencies": {
     "@vue/test-utils": "^2.4.6",
-    "axios": "^1.7.7"
-  },
-  "scripts": {
-  "test": "vitest"
-}
-
+    "axios-mock-adapter": "^2.1.0",
+    "jsdom": "^25.0.1",
+    "vite": "^5.4.11",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-tsconfig-paths": "^4.0.1",
+    "vitest": "^2.1.5"
+  }
 }
