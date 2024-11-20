@@ -30,3 +30,26 @@ export const addComment = async (contents, user_id, post_id) => {
     throw error; // Rethrow the error to be handled by the calling function
   }
 };
+
+export const deleteComment = async (comment_id) => {
+  // SQL query to delete a comment by comment_id
+  const deleteCommentSQL = `
+    DELETE FROM forum_schema."Comment"
+    WHERE comment_id = $1
+    RETURNING *;
+  `;
+
+  try {
+    const result = await query(deleteCommentSQL, [comment_id]);
+
+    if (result.length === 0) {
+      throw new Error(`Comment with ID ${comment_id} not found!`);
+    }
+
+    console.log(`Comment with ID ${comment_id} deleted successfully!`);
+    return result[0]; // Return the deleted comment
+  } catch (error) {
+    console.error('Error deleting comment from database:', error);
+    throw error; // Rethrow the error to be handled by the calling function
+  }
+}
