@@ -1,4 +1,4 @@
-import { addComment } from '../../../backend/comments/queries.js';
+import { addComment, deleteComment } from '../../../backend/comments/queries.js';
 import { query } from '../../../backend/database_connection.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -25,9 +25,9 @@ describe('addComment', () => {
 
     const result = await addComment(mockCommentContent, mockUserId, mockPostId);
 
-    // Verify the result matches the mock response
-    expect(result).toEqual(mockResponse);
-    expect(query).toHaveBeenCalledTimes(2); // Ensure both queries were executed
+  // Verify the result matches the mock response
+  expect(result).toEqual(mockResponse);
+  expect(query).toHaveBeenCalledTimes(2); // Ensure both queries were executed
   });
 
   it('should handle error when adding comment fails with database error on fetching next comment ID', async () => {
@@ -65,5 +65,58 @@ describe('addComment', () => {
       expect(error.message).toBe('Database error when inserting comment');
     }
     expect(query).toHaveBeenCalledTimes(2); // Ensure both queries were executed
+  });
+});
+
+describe('deleteComment', () => {
+  beforeEach(() => {
+    // Reset all mocks before each test to avoid shared state
+    vi.resetAllMocks();
+  });
+
+  it('should successfully delete a comment and return data', async () => {
+    const mockCommentId = 123;
+    const mockResponse = { comment_id: mockCommentId, contents: 'This is a comment', user_id: 1, post_id: 2 };
+
+    // Mock the database call to return the mock response
+    query.mockResolvedValueOnce([mockResponse]); // Simulate deleting the comment
+
+    const result = await deleteComment(mockCommentId);
+
+    // Verify the result matches the mock response
+    expect(result).toEqual(mockResponse);
+    expect(query).toHaveBeenCalledTimes(1); // Ensure the query was executed
+  });
+
+  it('should handle error when deleting comment fails with database error', async () => {
+    const mockCommentId = 123;
+
+    // Mock the database call to throw an error
+    query.mockRejectedValueOnce(new Error('Database error when deleting comment'));
+
+    try {
+      await deleteComment(mockCommentId);
+    } catch (error) {
+      // Ensure the error is thrown and contains the correct message
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe('Database error when deleting comment');
+    }
+    expect(query).toHaveBeenCalledTimes(1); // Ensure the query was executed
+  });
+
+  it('should handle error when comment to delete is not found', async () => {
+    const mockCommentId = 123;
+
+    // Mock the database call to return an empty array
+    query.mockResolvedValueOnce([]); // Simulate comment not found
+
+    try {
+      await deleteComment(mockCommentId);
+    } catch (error) {
+      // Ensure the error is thrown and contains the correct message
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe(`Comment with ID ${mockCommentId} not found!`);
+    }
+    expect(query).toHaveBeenCalledTimes(1); // Ensure the query was executed
   });
 });
