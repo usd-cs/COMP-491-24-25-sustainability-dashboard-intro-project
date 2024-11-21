@@ -1,4 +1,4 @@
-import { query } from '../database_connection.js'; // Adjust the path to match your project structure
+import { query } from '../database_connection.js'; 
 
 
 

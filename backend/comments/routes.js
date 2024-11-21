@@ -5,7 +5,7 @@ const router = Router();
 
 
 router.post("/add", add_comment);
-router.post("/del", delete_comment);
+router.delete("/del/:comment_id", delete_comment);
 
 export default router;
 
