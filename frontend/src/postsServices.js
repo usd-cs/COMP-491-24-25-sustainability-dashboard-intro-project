@@ -60,3 +60,14 @@ export async function deletePost(postId) {
     }
   }
 }
+
+export async function deleteComment(commentId) {
+  try {
+    const response = await axios.delete(`http://localhost:3001/api/comments/${commentId}`);
+    console.log('Comment deleted:', response.data);
+    return { data: response.data, error: null };
+  } catch (error) {
+    console.error('Error deleting comment:', error.response ? error.response.data : error);
+    return { data: null, error: 'Error deleting comment. Please try again later.' };
+  }
+}

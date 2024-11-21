@@ -33,6 +33,7 @@
             <li v-for="comment in post.comments" :key="comment.comment_id" class="comment">
               <p><strong>Comment by User {{ comment.user_id }}:</strong></p>
               <p>{{ comment.contents }}</p>
+              <button @click="deleteComment(post.post_id, comment.comment_id)" class="delete-comment-button">Delete</button>
             </li>
           </ul>
         </div>
@@ -56,7 +57,7 @@
 </template>
 
 <script>
-import { loadPostsAndComments, deletePost as deletePostService } from '@/postsServices';
+import { loadPostsAndComments, deleteComment, deletePost as deletePostService } from '@/postsServices';
 
 export default {
   data() {
@@ -135,6 +136,25 @@ export default {
       } catch (error) {
         console.error('Error adding comment:', error);
         this.errorMessage = 'Failed to add comment. Please try again.';
+      }
+    },
+    deleteComment(postId, commentId) {
+      try {
+        const response = await deleteComment(commentId);
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        // Remove the comment from the local state
+        const post = this.posts.find(p => p.post_id === postId);
+        if (post) {
+          post.comments = post.comments.filter(comment => comment.comment_id !== commentId);
+        }
+
+        console.log('Comment successfully deleted');
+      } catch (error) {
+        console.error('Error deleting comment:', error);
+        this.errorMessage = 'Failed to delete comment. Please try again.';
       }
     },
     getUserId() {
