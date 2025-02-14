@@ -35,3 +35,19 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const registerUser = async (req, res) => {
+  const { username, password, admin = false } = req.body;
+  try {
+    const existingUser = await queryUserByUsername(username);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await insertUser(username, hashedPassword, admin);
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Error during user registration:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
